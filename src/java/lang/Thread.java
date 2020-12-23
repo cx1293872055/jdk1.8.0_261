@@ -268,6 +268,10 @@ class Thread implements Runnable {
      * its current use of a processor. The scheduler is free to ignore this
      * hint.
      *
+     * 给调度程序的提示是当前线程愿意放弃对处理器的当前使用。调度程序可以随意忽略此提示。
+     *
+     * 不释放锁
+     *
      * <p> Yield is a heuristic attempt to improve relative progression
      * between threads that would otherwise over-utilise a CPU. Its use
      * should be combined with detailed profiling and benchmarking to
@@ -1310,8 +1314,13 @@ class Thread implements Runnable {
     /**
      * Waits for this thread to die.
      *
+     * 等待该线程死亡。
+     * 会释放调用join()的thread对象锁
+     *
      * <p> An invocation of this method behaves in exactly the same
      * way as the invocation
+     *
+     * 对该方法的调用与该调用的行为完全相同
      *
      * <blockquote>
      * {@linkplain #join(long) join}{@code (0)}

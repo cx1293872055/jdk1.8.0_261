@@ -40,6 +40,8 @@ import sun.misc.Unsafe;
  * Basic thread blocking primitives for creating locks and other
  * synchronization classes.
  *
+ * 用于创建锁和其他同步类的基本线程阻塞原语。
+ *
  * <p>This class associates, with each thread that uses it, a permit
  * (in the sense of the {@link java.util.concurrent.Semaphore
  * Semaphore} class). A call to {@code park} will return immediately
@@ -133,6 +135,10 @@ public class LockSupport {
      * is not guaranteed to have any effect at all if the given
      * thread has not been started.
      *
+     * 如果尚未提供给定线程的许可，则使其可用。如果线程在{@code park}上被阻止，
+     * 则它将取消阻止。否则，将确保其对{@code park}的下一次调用不会阻塞。如果给
+     * 定线程尚未启动，则不能保证此操作完全无效。
+     *
      * @param thread the thread to unpark, or {@code null}, in which case
      *        this operation has no effect
      */
@@ -144,6 +150,8 @@ public class LockSupport {
     /**
      * Disables the current thread for thread scheduling purposes unless the
      * permit is available.
+     *
+     * 除非有许可，否则出于线程调度目的禁用当前线程。
      *
      * <p>If the permit is available then it is consumed and the call returns
      * immediately; otherwise
@@ -179,6 +187,8 @@ public class LockSupport {
     /**
      * Disables the current thread for thread scheduling purposes, for up to
      * the specified waiting time, unless the permit is available.
+     *
+     * 除非允许使用许可，否则在指定的等待时间内禁用用于线程调度目的的当前线程。
      *
      * <p>If the permit is available then it is consumed and the call
      * returns immediately; otherwise the current thread becomes disabled
@@ -220,6 +230,8 @@ public class LockSupport {
     /**
      * Disables the current thread for thread scheduling purposes, until
      * the specified deadline, unless the permit is available.
+     *
+     * 除非指定许可，否则出于线程调度目的禁用当前线程，直到指定的期限。
      *
      * <p>If the permit is available then it is consumed and the call
      * returns immediately; otherwise the current thread becomes disabled
@@ -264,6 +276,9 @@ public class LockSupport {
      * snapshot -- the thread may have since unblocked or blocked on a
      * different blocker object.
      *
+     * 返回提供给尚未取消阻止的park方法的最新调用的阻止程序对象；如果尚未阻止，则返回
+     * null。返回的值只是一个瞬时快照-线程可能已取消阻塞或在其他阻塞对象上被阻塞。
+     *
      * @param t the thread
      * @return the blocker
      * @throws NullPointerException if argument is null
@@ -279,26 +294,40 @@ public class LockSupport {
      * Disables the current thread for thread scheduling purposes unless the
      * permit is available.
      *
+     * 除非有许可，否则出于线程调度目的禁用当前线程。
+     *
      * <p>If the permit is available then it is consumed and the call
      * returns immediately; otherwise the current thread becomes disabled
      * for thread scheduling purposes and lies dormant until one of three
      * things happens:
      *
+     * 如果许可证可用，则将其消耗掉，并立即返回呼叫；否则，呼叫将立即返回。否则，出于线程
+     * 调度目的，当前线程将被禁用，并在发生以下三种情况之一之前处于休眠状态：
      * <ul>
      *
      * <li>Some other thread invokes {@link #unpark unpark} with the
      * current thread as the target; or
      *
+     * 其他一些线程以当前线程为目标调用{@link #unpark unpark}。要么
+     *
      * <li>Some other thread {@linkplain Thread#interrupt interrupts}
      * the current thread; or
      *
+     * 其他一些线程{@linkplain Thread#interrupt interrupts}当前线程；要么
+     *
      * <li>The call spuriously (that is, for no reason) returns.
+     *
+     * 虚假地（即，无故）调用返回。
+     *
      * </ul>
      *
      * <p>This method does <em>not</em> report which of these caused the
      * method to return. Callers should re-check the conditions which caused
      * the thread to park in the first place. Callers may also determine,
      * for example, the interrupt status of the thread upon return.
+     *
+     * 此方法不报告其中哪些导致方法返回。调用者应重新检查导致线程首先停滞的条件。
+     * 调用者还可以确定例如返回时线程的中断状态。
      */
     public static void park() {
         UNSAFE.park(false, 0L);
@@ -307,6 +336,8 @@ public class LockSupport {
     /**
      * Disables the current thread for thread scheduling purposes, for up to
      * the specified waiting time, unless the permit is available.
+     *
+     * 除非允许使用许可，否则在指定的等待时间内禁用用于线程调度目的的当前线程。
      *
      * <p>If the permit is available then it is consumed and the call
      * returns immediately; otherwise the current thread becomes disabled
@@ -342,6 +373,8 @@ public class LockSupport {
      * Disables the current thread for thread scheduling purposes, until
      * the specified deadline, unless the permit is available.
      *
+     * 除非指定许可，否则出于线程调度目的禁用当前线程，直到指定的期限。
+     *
      * <p>If the permit is available then it is consumed and the call
      * returns immediately; otherwise the current thread becomes disabled
      * for thread scheduling purposes and lies dormant until one of four
@@ -375,6 +408,9 @@ public class LockSupport {
     /**
      * Returns the pseudo-randomly initialized or updated secondary seed.
      * Copied from ThreadLocalRandom due to package access restrictions.
+     *
+     * 返回伪随机初始化或更新的辅助种子。由于程序包访问限制，从ThreadLocalRandom复制。
+     *
      */
     static final int nextSecondarySeed() {
         int r;

@@ -188,6 +188,8 @@ public interface Condition {
      * Causes the current thread to wait until it is signalled or
      * {@linkplain Thread#interrupt interrupted}.
      *
+     * 使当前线程等待，直到收到信号或{@linkplain Thread#interrupt interrupted}。
+     *
      * <p>The lock associated with this {@code Condition} is atomically
      * released and the current thread becomes disabled for thread scheduling
      * purposes and lies dormant until <em>one</em> of four things happens:

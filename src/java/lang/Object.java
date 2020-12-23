@@ -466,6 +466,13 @@ public class Object {
      * {@link java.lang.Object#notifyAll()} method for this object.
      * In other words, this method behaves exactly as if it simply
      * performs the call {@code wait(0)}.
+     *
+     * 使当前线程等待，直到另一个线程为此对象调用{@link java.lang.Object#notify（）}
+     * 方法或{@link java.lang.Object#notifyAll（）}方法。换句话说，此方法的行为与仅
+     * 执行调用{@code wait（0）}完全相同。
+     *
+     * 会释放锁
+     *
      * <p>
      * The current thread must own this object's monitor. The thread
      * releases ownership of this monitor and waits until another thread
