@@ -51,6 +51,12 @@ import sun.misc.Unsafe;
  * multilevel locks and barriers that require
  * 64 bits of state.
  *
+ * {@link AbstractQueuedSynchronizer}的版本，其中同步状态保持为
+ * {@code long}。此类具有与{@code AbstractQueuedSynchronizer
+ * }完全相同的结构，属性和方法，除了所有与状态相关的参数和结果均定义为
+ * {@code long}而不是{@code int}。当创建需要64位状态的同步器（例
+ * 如多级锁和屏障）时，此类可能很有用。
+ *
  * <p>See {@link AbstractQueuedSynchronizer} for usage
  * notes and examples.
  *

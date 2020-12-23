@@ -47,6 +47,12 @@ import java.util.Date;
  * and statements, a {@code Condition} replaces the use of the Object
  * monitor methods.
  *
+ * {@code Condition}将{@code Object}监视方法（{@link Object#wait（）wait}，
+ * {@link Object#notify notify}和{@link Object#notifyAll notifyAll}）分解
+ * 为不同的对象，以产生多次等待的效果通过使用任意{@link Lock}实现将它们组合在一起，
+ * 为每个对象设置-个。如果{@code Lock}替换了{@code sync}方法和语句的使用，则
+ * {@code Condition}替换了Object监视器方法的使用。
+ *
  * <p>Conditions (also known as <em>condition queues</em> or
  * <em>condition variables</em>) provide a means for one thread to
  * suspend execution (to &quot;wait&quot;) until notified by another
@@ -233,6 +239,8 @@ public interface Condition {
     /**
      * Causes the current thread to wait until it is signalled.
      *
+     * 使当前线程等待，直到发出信号。
+     *
      * <p>The lock associated with this condition is atomically
      * released and the current thread becomes disabled for thread scheduling
      * purposes and lies dormant until <em>one</em> of three things happens:
@@ -270,18 +278,31 @@ public interface Condition {
      * Causes the current thread to wait until it is signalled or interrupted,
      * or the specified waiting time elapses.
      *
+     * 使当前线程等待，直到发出信号或中断它，或者经过指定的等待时间。
+     *
      * <p>The lock associated with this condition is atomically
      * released and the current thread becomes disabled for thread scheduling
      * purposes and lies dormant until <em>one</em> of five things happens:
+     * 与该条件相关联的锁是原子释放的，并且出于线程调度目的，当前线程被禁用，并且处于休眠状态，
+     * 直到发生以下五种情况的一种：
+     *
      * <ul>
      * <li>Some other thread invokes the {@link #signal} method for this
      * {@code Condition} and the current thread happens to be chosen as the
      * thread to be awakened; or
+     * 其他一些线程为此{@code Condition}调用{@link #signal}方法，
+     * 而当前线程恰好被选择为要唤醒的线程；要么
+     *
      * <li>Some other thread invokes the {@link #signalAll} method for this
      * {@code Condition}; or
+     * 其他一些线程为此{@code Condition}调用{@link #signalAll}方法；要么
+     *
      * <li>Some other thread {@linkplain Thread#interrupt interrupts} the
      * current thread, and interruption of thread suspension is supported; or
      * <li>The specified waiting time elapses; or
+     * 当前线程有其他一些线程{@linkplain Thread#interrupt interrupts}，
+     * 并且支持中断线程挂起；或<li>已过指定的等待时间；要么
+     *
      * <li>A &quot;<em>spurious wakeup</em>&quot; occurs.
      * </ul>
      *
@@ -307,6 +328,10 @@ public interface Condition {
      * long to re-wait in cases where the wait returns but an awaited
      * condition still does not hold. Typical uses of this method take
      * the following form:
+     *
+     * 给定返回时提供的{@code nanosTimeout}值，该方法将返回剩余的等待纳秒数的估
+     * 计值；如果超时，则返回小于或等于零的值。此值可用于确定在等待返回但仍不满足等
+     * 待条件的情况下是否重新等待以及等待多长时间。此方法的典型用法采用以下形式：
      *
      *  <pre> {@code
      * boolean aMethod(long timeout, TimeUnit unit) {

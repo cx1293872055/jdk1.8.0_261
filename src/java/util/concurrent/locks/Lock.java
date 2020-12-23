@@ -169,6 +169,8 @@ public interface Lock {
     /**
      * Acquires the lock.
      *
+     * 获取锁。
+     *
      * <p>If the lock is not available then the current thread becomes
      * disabled for thread scheduling purposes and lies dormant until the
      * lock has been acquired.
@@ -186,6 +188,8 @@ public interface Lock {
     /**
      * Acquires the lock unless the current thread is
      * {@linkplain Thread#interrupt interrupted}.
+     *
+     * 除非当前线程为{@linkplain Thread#interrupt interrupted}，否则获取锁。
      *
      * <p>Acquires the lock if it is available and returns immediately.
      *
@@ -234,6 +238,8 @@ public interface Lock {
     /**
      * Acquires the lock only if it is free at the time of invocation.
      *
+     * 仅在调用时释放锁时才获取锁。
+     *
      * <p>Acquires the lock if it is available and returns immediately
      * with the value {@code true}.
      * If the lock is not available then this method will return
@@ -263,6 +269,9 @@ public interface Lock {
     /**
      * Acquires the lock if it is free within the given waiting time and the
      * current thread has not been {@linkplain Thread#interrupt interrupted}.
+     *
+     * 如果锁在给定的等待时间内是空闲的，并且当前线程尚未{@linkplain Thread#interrupt interrupted}，
+     * 则获取该锁。
      *
      * <p>If the lock is available this method returns immediately
      * with the value {@code true}.
@@ -323,6 +332,8 @@ public interface Lock {
     /**
      * Releases the lock.
      *
+     * 释放锁
+     *
      * <p><b>Implementation Considerations</b>
      *
      * <p>A {@code Lock} implementation will usually impose
@@ -337,6 +348,8 @@ public interface Lock {
     /**
      * Returns a new {@link Condition} instance that is bound to this
      * {@code Lock} instance.
+     *
+     * 返回绑定到此{@code Lock}实例的新{@link Condition}实例。
      *
      * <p>Before waiting on the condition the lock must be held by the
      * current thread.
