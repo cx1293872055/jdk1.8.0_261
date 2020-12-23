@@ -51,6 +51,11 @@ import java.util.concurrent.locks.LockSupport;
  * methods require stamps as arguments, and fail if they do not match
  * the state of the lock. The three modes are:
  *
+ * 一种基于功能的锁，具有三种模式来控制读写访问。 StampedLock的状态由版本和模式组成
+ * 。锁获取方法返回一个标记，该标记表示并控制相对于锁定状态的访问；这些方法的“尝试”版
+ * 本可能会返回特殊值零，以表示无法获取访问权限。锁释放和转换方法需要使用图章作为参数
+ * ，如果它们与锁的状态不匹配，则会失败。三种模式是：
+ *
  * <ul>
  *
  *  <li><b>Writing.</b> Method {@link #writeLock} possibly blocks
@@ -60,10 +65,17 @@ import java.util.concurrent.locks.LockSupport;
  *   the lock is held in write mode, no read locks may be obtained,
  *   and all optimistic read validations will fail.  </li>
  *
+ * 写入方法{@link #writeLock}可能会阻止等待独占访问，返回可以在方法
+ * {@link #unlockWrite}中使用的戳记，以释放锁。还提供了{@code tryWriteLock}
+ * 的非定时和定时版本。当锁保持在写模式时，可能不会获得任何读锁，并且所有乐观的读验证都将失败。
+ *
  *  <li><b>Reading.</b> Method {@link #readLock} possibly blocks
  *   waiting for non-exclusive access, returning a stamp that can be
  *   used in method {@link #unlockRead} to release the lock. Untimed
  *   and timed versions of {@code tryReadLock} are also provided. </li>
+ *
+ * 读取方法{@link #readLock}可能会阻止等待非独占访问，返回可以在方法
+ * {@link #unlockRead}中使用的戳记以释放锁。还提供了{@code tryReadLock}的非定时版本和定时版本
  *
  *  <li><b>Optimistic Reading.</b> Method {@link #tryOptimisticRead}
  *   returns a non-zero stamp only if the lock is not currently held
@@ -82,6 +94,15 @@ import java.util.concurrent.locks.LockSupport;
  *   typically required when first reading an object or array
  *   reference, and then accessing one of its fields, elements or
  *   methods. </li>
+ *
+ * 乐观读取。<b>仅当锁当前未处于写入模式时，方法{@link #tryOptimisticRead}返回
+ * 非零戳记。如果自获取给定标记以来未在写入模式下获取锁，则方法{@link #validate}
+ * 返回true。可以将这种模式视为读取锁的极弱版本，编写者可以随时将其破坏。对短只读代
+ * 码段使用乐观模式通常可以减少争用并提高吞吐量。但是，其使用固有地易碎。乐观的读取
+ * 部分应仅读取字段并将其保存在局部变量中，以供验证后使用。在乐观模式下读取的字段可
+ * 能完全不一致，因此仅当您足够熟悉数据表示以检查一致性和/或重复调用方法{@code validate()}时
+ * ，用法才适用。例如，当首先读取对象或数组引用，然后访问其字段，元素或方法之一时，
+ * 通常需要执行这些步骤。
  *
  * </ul>
  *
@@ -431,6 +452,8 @@ public class StampedLock implements java.io.Serializable {
     /**
      * Non-exclusively acquires the lock if it is immediately available.
      *
+     * 如果锁立即可用，则以非排他方式获取锁。
+     *
      * @return a stamp that can be used to unlock or convert mode,
      * or zero if the lock is not available
      */
@@ -453,6 +476,9 @@ public class StampedLock implements java.io.Serializable {
      * given time and the current thread has not been interrupted.
      * Behavior under timeout and interruption matches that specified
      * for method {@link Lock#tryLock(long,TimeUnit)}.
+     *
+     * 如果锁在给定时间内可用并且当前线程尚未中断，则以非排他方式获取该锁。
+     * 超时和中断下的行为与为方法{@link Lock#tryLock（long，TimeUnit）}指定的行为匹配。
      *
      * @param time the maximum time to wait for the lock
      * @param unit the time unit of the {@code time} argument
@@ -490,6 +516,9 @@ public class StampedLock implements java.io.Serializable {
      * Behavior under interruption matches that specified
      * for method {@link Lock#lockInterruptibly()}.
      *
+     * 非排他地获取锁，必要时将阻塞直到可用或当前线程被中断为止。
+     * 中断下的行为与为方法{@link Lock#lockInterruptibly()}指定的行为匹配。
+     *
      * @return a stamp that can be used to unlock or convert mode
      * @throws InterruptedException if the current thread is interrupted
      * before acquiring the lock
@@ -521,6 +550,10 @@ public class StampedLock implements java.io.Serializable {
      * obtained from {@link #tryOptimisticRead} or a locking method
      * for this lock has no defined effect or result.
      *
+     * 如果自发行给定邮票以来尚未专门获得该锁，则返回true。如果戳记为零，则始终返
+     * 回false。如果图章代表当前持有的锁，则始终返回true。使用未从{@link #tryOptimisticRead}
+     * 获得的值来调用此方法或该锁定的锁定方法没有定义的效果或结果。
+     *
      * @param stamp a stamp
      * @return {@code true} if the lock has not been exclusively acquired
      * since issuance of the given stamp; else false
@@ -533,6 +566,8 @@ public class StampedLock implements java.io.Serializable {
     /**
      * If the lock state matches the given stamp, releases the
      * exclusive lock.
+     *
+     * 如果锁定状态与给定的标记相匹配，则释放互斥锁定。
      *
      * @param stamp a stamp returned by a write-lock operation
      * @throws IllegalMonitorStateException if the stamp does
@@ -550,6 +585,8 @@ public class StampedLock implements java.io.Serializable {
     /**
      * If the lock state matches the given stamp, releases the
      * non-exclusive lock.
+     *
+     * 如果锁定状态与给定的戳匹配，则释放非排他的锁定。
      *
      * @param stamp a stamp returned by a read-lock operation
      * @throws IllegalMonitorStateException if the stamp does
@@ -576,6 +613,8 @@ public class StampedLock implements java.io.Serializable {
     /**
      * If the lock state matches the given stamp, releases the
      * corresponding mode of the lock.
+     *
+     * 如果锁状态与给定的印章匹配，则释放相应的锁模式。
      *
      * @param stamp a stamp returned by a lock operation
      * @throws IllegalMonitorStateException if the stamp does
@@ -618,6 +657,10 @@ public class StampedLock implements java.io.Serializable {
      * immediately available. This method returns zero in all other
      * cases.
      *
+     * 如果锁定状态与给定的标记相匹配，请执行以下操作之一。如果该图章表示持有写锁
+     * ，则将其返回。或者，如果有读锁（如果有写锁），则释放该读锁并返回写标记。或者
+     * ，如果是乐观读取，则仅在立即可用时才返回写标记。在所有其他情况下，此方法均返回零。
+     *
      * @param stamp a stamp
      * @return a valid write stamp, or zero on failure
      */
@@ -653,6 +696,10 @@ public class StampedLock implements java.io.Serializable {
      * returns it. Or, if an optimistic read, acquires a read lock and
      * returns a read stamp only if immediately available. This method
      * returns zero in all other cases.
+     *
+     * 如果锁定状态与给定的标记相匹配，请执行以下操作之一。如果图章表示持有写锁，请释
+     * 放它并获得读锁。或者，如果有读锁，则将其返回。或者，如果是乐观读取，则获取读取
+     * 锁定并仅在立即可用时返回读取戳记。在所有其他情况下，此方法均返回零。
      *
      * @param stamp a stamp
      * @return a valid read stamp, or zero on failure
@@ -692,6 +739,10 @@ public class StampedLock implements java.io.Serializable {
      * observation stamp.  Or, if an optimistic read, returns it if
      * validated. This method returns zero in all other cases, and so
      * may be useful as a form of "tryUnlock".
+     *
+     * 如果锁状态与给定的印章匹配，则如果该印章表示持有一把锁，则将其释放并返回观察
+     * 印章。或者，如果乐观阅读，则返回经过验证的结果。在所有其他情况下，此方法均返
+     * 回零，因此可能作为“ tryUnlock”形式有用。
      *
      * @param stamp a stamp
      * @return a valid optimistic read stamp, or zero on failure
@@ -735,6 +786,8 @@ public class StampedLock implements java.io.Serializable {
      * stamp value. This method may be useful for recovery after
      * errors.
      *
+     * 释放写入锁（如果已持有），而无需标记值。此方法对于出错后的恢复可能很有用。
+     *
      * @return {@code true} if the lock was held, else false
      */
     public boolean tryUnlockWrite() {
@@ -752,6 +805,8 @@ public class StampedLock implements java.io.Serializable {
      * Releases one hold of the read lock if it is held, without
      * requiring a stamp value. This method may be useful for recovery
      * after errors.
+     *
+     * 释放读锁定的一个保留（如果已持有），而无需标记值。此方法对于出错后的恢复可能很有用。
      *
      * @return {@code true} if the read lock was held, else false
      */
@@ -776,6 +831,7 @@ public class StampedLock implements java.io.Serializable {
     /**
      * Returns combined state-held and overflow read count for given
      * state s.
+     * 返回给定状态s的组合状态保持状态和溢出读取计数。
      */
     private int getReadLockCount(long s) {
         long readers;
@@ -958,6 +1014,9 @@ public class StampedLock implements java.io.Serializable {
      * access bits value to RBITS, indicating hold of spinlock,
      * then updating, then releasing.
      *
+     * 尝试通过首先将状态访问位的值设置为RBITS来指示增加自旋锁，然后进行更
+     * 新然后释放，以增加readerOverflow。
+     *
      * @param s a reader overflow stamp: (s & ABITS) >= RFULL
      * @return new stamp on success, else zero
      */
@@ -1128,6 +1187,8 @@ public class StampedLock implements java.io.Serializable {
 
     /**
      * See above for explanation.
+     *
+     * 请参阅上面的说明。
      *
      * @param interruptible true if should check interrupts and if so
      * return INTERRUPTED
@@ -1303,6 +1364,12 @@ public class StampedLock implements java.io.Serializable {
      * policies). This is a variant of cancellation methods in
      * AbstractQueuedSynchronizer (see its detailed explanation in AQS
      * internal documentation).
+     *
+     * 如果节点非空，则强制取消状态，并在可能的情况下将其从队列中取消拼接，并唤醒（
+     * 节点或组的）所有等待者，并且在任何情况下都可以释放当前的第一位等待者（如果锁
+     * 是免费的）。 （使用空参数进行调用是释放的条件形式，当前不需要，但是在将来可
+     * 能的取消策略下可能需要使用释放）。这是AbstractQueuedSynchronizer中取消
+     * 方法的一种变体（请参阅AQS内部文档中的详细说明）。
      *
      * @param node if nonnull, the waiter
      * @param group either node or the group node is cowaiting with

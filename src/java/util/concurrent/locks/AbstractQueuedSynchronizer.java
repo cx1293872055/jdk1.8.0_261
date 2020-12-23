@@ -812,6 +812,8 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Cancels an ongoing attempt to acquire.
      *
+     * 取消正在进行的获取尝试。
+     *
      * @param node the node
      */
     private void cancelAcquire(Node node) {

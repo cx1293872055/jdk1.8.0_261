@@ -265,13 +265,17 @@ public class ReentrantReadWriteLock
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
         /** Returns the number of shared holds represented in count  */
+        /** 返回以count表示的共享保留的数量  */
         static int sharedCount(int c)    { return c >>> SHARED_SHIFT; }
         /** Returns the number of exclusive holds represented in count  */
+        /** 返回以count表示的独占保留数  */
         static int exclusiveCount(int c) { return c & EXCLUSIVE_MASK; }
 
         /**
          * A counter for per-thread read hold counts.
          * Maintained as a ThreadLocal; cached in cachedHoldCounter
+         *
+         * 每个线程读取保持计数的计数器。维护为ThreadLocal;缓存在cachedHoldCounter中
          */
         static final class HoldCounter {
             int count = 0;
@@ -282,6 +286,8 @@ public class ReentrantReadWriteLock
         /**
          * ThreadLocal subclass. Easiest to explicitly define for sake
          * of deserialization mechanics.
+         *
+         * ThreadLocal子类。为了进行反序列化，最容易明确定义。
          */
         static final class ThreadLocalHoldCounter
             extends ThreadLocal<HoldCounter> {
@@ -294,6 +300,9 @@ public class ReentrantReadWriteLock
          * The number of reentrant read locks held by current thread.
          * Initialized only in constructor and readObject.
          * Removed whenever a thread's read hold count drops to 0.
+         *
+         * 当前线程持有的可重入读锁的数量。仅在构造函数和readObject中初始化。
+         * 每当线程的读取保持计数降至0时将其删除。
          */
         private transient ThreadLocalHoldCounter readHolds;
 
@@ -303,6 +312,10 @@ public class ReentrantReadWriteLock
          * where the next thread to release is the last one to
          * acquire. This is non-volatile since it is just used
          * as a heuristic, and would be great for threads to cache.
+         *
+         * 成功获取readLock的最后一个线程的保留计数。在下一个要释放的线程是最
+         * 后一个要获取的线程的常见情况下，这可以节省ThreadLocal查找。这是非
+         * 易失性的，因为它仅用作启发式方法，对于线程进行缓存非常有用。
          *
          * <p>Can outlive the Thread for which it is caching the read
          * hold count, but avoids garbage retention by not retaining a
@@ -316,6 +329,8 @@ public class ReentrantReadWriteLock
         /**
          * firstReader is the first thread to have acquired the read lock.
          * firstReaderHoldCount is firstReader's hold count.
+         *
+         * firstReader是第一个获得读取锁定的线程。 firstReaderHoldCount是firstReader的保留计数。
          *
          * <p>More precisely, firstReader is the unique thread that last
          * changed the shared count from 0 to 1, and has not released the
@@ -364,6 +379,10 @@ public class ReentrantReadWriteLock
          * Conditions. So it is possible that their arguments contain
          * both read and write holds that are all released during a
          * condition wait and re-established in tryAcquire.
+         *
+         * 请注意，条件可以调用tryRelease和tryAcquire。因此，它们的参数可能
+         * 包含读取和写入保留，它们都在条件等待期间释放，并在tryAcquire中重新
+         * 建立。
          */
 
         protected final boolean tryRelease(int releases) {
@@ -388,6 +407,13 @@ public class ReentrantReadWriteLock
              *    it is either a reentrant acquire or
              *    queue policy allows it. If so, update state
              *    and set owner.
+             * 演练：
+             * 1.如果读取计数非零或写入计数非零并且所有者是另一个线程
+             * ，则失败。
+             * 2.如果计数饱和，则失败。 （只有在count已经不为零时，才
+             * 会发生这种情况。）
+             * 3.否则，如果该线程是可重入获取或队列策略允许的话，则有资
+             * 格进行锁定。如果是这样，请更新状态并设置所有者。
              */
             Thread current = Thread.currentThread();
             int c = getState();
@@ -491,6 +517,9 @@ public class ReentrantReadWriteLock
         /**
          * Full version of acquire for reads, that handles CAS misses
          * and reentrant reads not dealt with in tryAcquireShared.
+         *
+         * 读取的完整版本，可处理tryAcquireShared中未处理的CAS丢失和可重入读取。
+         *
          */
         final int fullTryAcquireShared(Thread current) {
             /*
@@ -498,6 +527,10 @@ public class ReentrantReadWriteLock
              * tryAcquireShared but is simpler overall by not
              * complicating tryAcquireShared with interactions between
              * retries and lazily reading hold counts.
+             *
+             * 这段代码与tryAcquireShared中的代码部分冗余，但由于不使
+             * tryAcquireShared与重试和延迟读取保持计数之间的交互复杂化，
+             * 因此整体上更简单。
              */
             HoldCounter rh = null;
             for (;;) {
@@ -551,6 +584,10 @@ public class ReentrantReadWriteLock
          * Performs tryLock for write, enabling barging in both modes.
          * This is identical in effect to tryAcquire except for lack
          * of calls to writerShouldBlock.
+         *
+         * 执行tryLock进行写入，从而在两种模式下都可以进行插入。除了缺少对
+         * writerShouldBlock的调用外，这与tryAcquire的作用相同。
+         *
          */
         final boolean tryWriteLock() {
             Thread current = Thread.currentThread();
@@ -572,6 +609,10 @@ public class ReentrantReadWriteLock
          * Performs tryLock for read, enabling barging in both modes.
          * This is identical in effect to tryAcquireShared except for
          * lack of calls to readerShouldBlock.
+         *
+         * 执行tryLock进行读取，从而在两种模式下都可以进行插入。除了缺少对
+         * readerShouldBlock的调用外，这与tryAcquireShared的作用相同。
+         *
          */
         final boolean tryReadLock() {
             Thread current = Thread.currentThread();
