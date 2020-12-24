@@ -83,11 +83,22 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * states use cheaper ordered/lazy writes because values are unique
      * and cannot be further modified.
      *
+     * 此任务的运行状态，最初为NEW。运行状态仅在set，setException和cancel方法中
+     * 转换为终端状态。在完成期间，状态可能会采用COMPLETING（正在设置结果时）
+     * 或INTERRUPTING（仅在中断跑步者满足cancel（true）时）的瞬态值。从这些中间
+     * 状态到最终状态的转换使用更便宜的有序惰性写入，因为值是唯一的，无法进一步修改。
+     *
      * Possible state transitions:
      * NEW -> COMPLETING -> NORMAL
      * NEW -> COMPLETING -> EXCEPTIONAL
      * NEW -> CANCELLED
      * NEW -> INTERRUPTING -> INTERRUPTED
+     *
+     * 可能的状态转换：
+     * 新->完成->正常
+     * 新->完成->例外
+     * 新->取消
+     * 新->中断->中断
      */
     private volatile int state;
     private static final int NEW          = 0;
@@ -126,6 +137,8 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * Creates a {@code FutureTask} that will, upon running, execute the
      * given {@code Callable}.
      *
+     * 创建一个{@code FutureTask}，它将在运行时执行给定的{@code Callable}。
+     *
      * @param  callable the callable task
      * @throws NullPointerException if the callable is null
      */
@@ -140,6 +153,9 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * Creates a {@code FutureTask} that will, upon running, execute the
      * given {@code Runnable}, and arrange that {@code get} will return the
      * given result on successful completion.
+     *
+     * 创建一个{@code FutureTask}，它将在运行时执行给定的{@code Runnable}，
+     * 并安排{@code get}在成功完成后返回给定的结果。
      *
      * @param runnable the runnable task
      * @param result the result to return on successful completion. If
@@ -239,6 +255,9 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * with the given throwable as its cause, unless this future has
      * already been set or has been cancelled.
      *
+     * 导致此未来报告一个{@link ExecutionException}，并将其作为给定throwable
+     * 的原因，除非已经设置或取消了该未来。
+     *
      * <p>This method is invoked internally by the {@link #run} method
      * upon failure of the computation.
      *
@@ -292,6 +311,9 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * designed for use with tasks that intrinsically execute more
      * than once.
      *
+     * 在不设置计算结果的情况下执行计算，然后将此未来状态重置为初始状态，如果计算遇
+     * 到异常或被取消，则无法执行此操作。设计用于本质上执行多次的任务。
+     *
      * @return {@code true} if successfully run and reset
      */
     protected boolean runAndReset() {
@@ -327,6 +349,8 @@ public class FutureTask<V> implements RunnableFuture<V> {
     /**
      * Ensures that any interrupt from a possible cancel(true) is only
      * delivered to a task while in run or runAndReset.
+     *
+     * 确保来自可能的cancel（true）的任何中断仅在运行或runAndReset时才传递给任务。
      */
     private void handlePossibleCancellationInterrupt(int s) {
         // It is possible for our interrupter to stall before getting a
@@ -360,6 +384,8 @@ public class FutureTask<V> implements RunnableFuture<V> {
     /**
      * Removes and signals all waiting threads, invokes done(), and
      * nulls out callable.
+     *
+     * 删除并发出所有等待线程的信号，调用done（），并使callable无效。
      */
     private void finishCompletion() {
         // assert state > COMPLETING;
@@ -388,6 +414,8 @@ public class FutureTask<V> implements RunnableFuture<V> {
 
     /**
      * Awaits completion or aborts on interrupt or timeout.
+     *
+     * 等待完成，或者在中断或超时时中止。
      *
      * @param timed true if use timed waits
      * @param nanos time to wait, if timed
@@ -439,6 +467,12 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * race.  This is slow when there are a lot of nodes, but we don't
      * expect lists to be long enough to outweigh higher-overhead
      * schemes.
+     *
+     * 尝试取消链接超时或中断的等待节点，以避免积累垃圾。内部节点在没有CAS的情况下根
+     * 本不会被拼接，因为如果释放者无论如何遍历它们，都是无害的。为了避免从已删除的节
+     * 点取消拆分的影响，在出现明显竞争的情况下将重新遍历该列表。当节点很多时，这很慢
+     * ，但是我们不希望列表足够长以超过开销更高的方案。
+     *
      */
     private void removeWaiter(WaitNode node) {
         if (node != null) {
