@@ -45,6 +45,11 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * However, no actual permit objects are used; the {@code Semaphore} just
  * keeps a count of the number available and acts accordingly.
  *
+ * 计数信号量。从概念上讲，信号量维护一组许可证。如有必要，每个{@link #acquire}都会
+ * 阻止，直到获得许可为止，然后获得许可。每个{@link #release}都会添加一个许可证，从而有
+ * 可能释放阻止获取者。但是，没有使用实际的许可对象。 {@code Semaphore}仅保留可用数量
+ * 的计数并采取相应措施。
+ *
  * <p>Semaphores are often used to restrict the number of threads than can
  * access some (physical or logical) resource. For example, here is
  * a class that uses a semaphore to control access to a pool of items:
