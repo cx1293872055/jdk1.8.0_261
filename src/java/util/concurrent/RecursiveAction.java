@@ -42,6 +42,10 @@ package java.util.concurrent;
  * only valid value of type {@code Void}, methods such as {@code join}
  * always return {@code null} upon completion.
  *
+ * 递归的无结果{@link ForkJoinTask}。此类建立约定以将无结果的动作参数化为
+ * {@code Void} {@code ForkJoinTask} s。由于{@code null}是类型{@code Void}
+ * 的唯一有效值，因此{@code join}之类的方法在完成后总是返回{@code null}。
+ *
  * <p><b>Sample Usages.</b> Here is a simple but complete ForkJoin
  * sort that sorts a given {@code long[]} array:
  *

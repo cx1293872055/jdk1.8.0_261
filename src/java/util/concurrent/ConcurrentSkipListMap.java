@@ -65,6 +65,9 @@ import java.util.function.Function;
  * ordering} of its keys, or by a {@link Comparator} provided at map
  * creation time, depending on which constructor is used.
  *
+ * 可伸缩的并发{@link ConcurrentNavigableMap}实现。映射是根据其键的{@linkplain Comparable natural ordering}
+ * 进行排序的，或者根据在映射创建时提供的{@link Comparator}进行排序的，具体取决于所使用的构造函数。
+ *
  * <p>This class implements a concurrent variant of <a
  * href="http://en.wikipedia.org/wiki/Skip_list" target="_top">SkipLists</a>
  * providing expected average <i>log(n)</i> time cost for the
@@ -125,6 +128,13 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
      * for the heavily-traversed index lists than can be used for the
      * base lists.  Here's a picture of some of the basics for a
      * possible list with 2 levels of index:
+     *
+     * 此类实现了树状的二维链接的跳过列表，其中索引级别在与保存数据的基本节点不同的节
+     * 点中表示。采用此方法而不是通常的基于数组的结构有两个原因：
+     * 1）基于数组的实现似乎遇到更多的复杂性和开销
+     * 2）我们可以为遍历索引列表使用比用于基础索引更便宜的算法列表。
+     *
+     * 这是一张具有2级索引的可能列表的一些基础知识照片：
      *
      * Head nodes          Index nodes
      * +-+    right        +-+                      +-+

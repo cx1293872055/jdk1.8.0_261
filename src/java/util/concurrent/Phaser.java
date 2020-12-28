@@ -46,6 +46,10 @@ import java.util.concurrent.locks.LockSupport;
  * {@link java.util.concurrent.CountDownLatch CountDownLatch}
  * but supporting more flexible usage.
  *
+ * 可重用的同步屏障，其功能类似于
+ * {@link java.util.concurrent.CyclicBarrier CyclicBarrier}和
+ * {@link java.util.concurrent.CountDownLatch CountDownLatch}，但支持更灵活的用法。
+ *
  * <p><b>Registration.</b> Unlike the case for other barriers, the
  * number of parties <em>registered</em> to synchronize on a phaser
  * may vary over time.  Tasks may be registered at any time (using

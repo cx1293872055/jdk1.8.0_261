@@ -53,6 +53,10 @@ import java.util.Spliterator;
  * or by a {@link Comparator} provided at set creation time, depending
  * on which constructor is used.
  *
+ * 基于{@link ConcurrentSkipListMap}的可伸缩并发{@link NavigableSet}实现。
+ * 集合中的元素根据它们的{@linkplain Comparable natural ordering}或在集合创
+ * 建时提供的{@link Comparator}进行排序，具体取决于使用哪个构造函数。
+ *
  * <p>This implementation provides expected average <i>log(n)</i> time
  * cost for the {@code contains}, {@code add}, and {@code remove}
  * operations and their variants.  Insertion, removal, and access

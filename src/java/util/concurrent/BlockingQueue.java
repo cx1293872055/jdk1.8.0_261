@@ -44,6 +44,9 @@ import java.util.Queue;
  * element, and wait for space to become available in the queue when
  * storing an element.
  *
+ * {@link java.util.Queue}另外还支持以下操作：在检索元素时等待队列变为非空，
+ * 并在存储元素时等待队列中的空间变为可用。
+ *
  * <p>{@code BlockingQueue} methods come in four forms, with different ways
  * of handling operations that cannot be satisfied immediately, but may be
  * satisfied at some point in the future:
@@ -173,6 +176,8 @@ import java.util.Queue;
  * <a href="{@docRoot}/../technotes/guides/collections/index.html">
  * Java Collections Framework</a>.
  *
+ * 这里的阻塞是指，可以等待设定时常的时间，所以意思就是等待（阻塞），所以这是blocking
+ *
  * @since 1.5
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
@@ -256,6 +261,8 @@ public interface BlockingQueue<E> extends Queue<E> {
      * Retrieves and removes the head of this queue, waiting if necessary
      * until an element becomes available.
      *
+     * 检索并删除此队列的头，如有必要，请等待直到元素可用。
+     *
      * @return the head of this queue
      * @throws InterruptedException if interrupted while waiting
      */
@@ -264,6 +271,8 @@ public interface BlockingQueue<E> extends Queue<E> {
     /**
      * Retrieves and removes the head of this queue, waiting up to the
      * specified wait time if necessary for an element to become available.
+     *
+     * 检索并除去此队列的头，如果有必要使元素可用，则等待指定的等待时间。
      *
      * @param timeout how long to wait before giving up, in units of
      *        {@code unit}
@@ -282,6 +291,9 @@ public interface BlockingQueue<E> extends Queue<E> {
      * blocking, or {@code Integer.MAX_VALUE} if there is no intrinsic
      * limit.
      *
+     * 返回此队列理想情况下（在没有内存或资源约束的情况下）可以无阻塞接受的其他元素的数量；
+     * 如果没有内部限制，则返回{@code Integer.MAX_VALUE}。
+     *
      * <p>Note that you <em>cannot</em> always tell if an attempt to insert
      * an element will succeed by inspecting {@code remainingCapacity}
      * because it may be the case that another thread is about to
@@ -296,6 +308,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * if it is present.  More formally, removes an element {@code e} such
      * that {@code o.equals(e)}, if this queue contains one or more such
      * elements.
+     *
+     * 从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个
+     * 这样的元素，则删除元素{@code e}，使{@code o.equals（e）}。
+     *
      * Returns {@code true} if this queue contained the specified element
      * (or equivalently, if this queue changed as a result of the call).
      *
@@ -313,6 +329,9 @@ public interface BlockingQueue<E> extends Queue<E> {
      * Returns {@code true} if this queue contains the specified element.
      * More formally, returns {@code true} if and only if this queue contains
      * at least one element {@code e} such that {@code o.equals(e)}.
+     *
+     * 如果此队列包含指定的元素，则返回{@code true}。更正式地说，当且仅当此队列包含至少一
+     * 个元素{@code e}这样{@code o.equals（e）}时，才返回{@code true}。
      *
      * @param o object to be checked for containment in this queue
      * @return {@code true} if this queue contains the specified element
@@ -335,6 +354,12 @@ public interface BlockingQueue<E> extends Queue<E> {
      * {@code IllegalArgumentException}. Further, the behavior of
      * this operation is undefined if the specified collection is
      * modified while the operation is in progress.
+     *
+     * 从此队列中删除所有可用的元素，并将它们添加到给定的集合中。此操作可能比重
+     * 复轮询此队列更有效。尝试将元素添加到集合{@code c}时遇到故障，可能会导致
+     * 在引发关联异常时元素既不在两个集合中，又不在两个集合中。尝试排空队列本身会
+     * 导致{@code IllegalArgumentException}。此外，如果在操作进行过程中修
+     * 改了指定的集合，则此操作的行为不确定。
      *
      * @param c the collection to transfer elements into
      * @return the number of elements transferred
@@ -359,6 +384,12 @@ public interface BlockingQueue<E> extends Queue<E> {
      * {@code IllegalArgumentException}. Further, the behavior of
      * this operation is undefined if the specified collection is
      * modified while the operation is in progress.
+     *
+     * 从此队列中最多移除给定数量的可用元素，并将它们添加到给定的集合中。尝试将
+     * 元素添加到集合{@code c}时遇到故障，可能会导致在引发关联异常时元素既不在
+     * 两个集合中，又不在两个集合中。尝试排空队列本身会导致{@code IllegalArg
+     * umentException}。此外，如果在操作进行过程中修改了指定的集合，则此操作
+     * 的行为不确定。
      *
      * @param c the collection to transfer elements into
      * @param maxElements the maximum number of elements to transfer

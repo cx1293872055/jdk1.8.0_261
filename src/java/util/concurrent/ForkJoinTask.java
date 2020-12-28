@@ -59,6 +59,10 @@ import java.lang.reflect.Constructor;
  * subtasks may be hosted by a small number of actual threads in a
  * ForkJoinPool, at the price of some usage limitations.
  *
+ * 在{@link ForkJoinPool}中运行的任务的抽象基类。 {@code ForkJoinTask}是类似
+ * 于线程的实体，其权重比普通线程轻得多。大量的任务和子任务可能由ForkJoinPool中的少
+ * 量实际线程托管，但以某些使用限制为代价。
+ *
  * <p>A "main" {@code ForkJoinTask} begins execution when it is
  * explicitly submitted to a {@link ForkJoinPool}, or, if not already
  * engaged in a ForkJoin computation, commenced in the {@link
@@ -379,6 +383,9 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * only cases of already-completed, external wait, and
      * unfork+exec.  Others are relayed to ForkJoinPool.awaitJoin.
      *
+     * 实现加入，获取，悄悄加入。仅直接处理已经完成，外部等待和unfork + exec的
+     * 情况。其他的则中继到ForkJoinPool.awaitJoin。
+     *
      * @return status upon completion
      */
     private int doJoin() {
@@ -692,6 +699,13 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * related methods, or a call to {@link #isDone} returning {@code
      * true}.
      *
+     * 安排在当前任务正在运行的池中异步执行此任务（如果适用），或者如果不使用
+     * {@link #inForkJoinPool}，则使用{@link ForkJoinPool#commonPool（）}。
+     * 尽管不一定要强制执行它，但如果任务已完成并重新初始化，则多次分叉任务是使用错误。
+     * 除非对{@link #join}或相关方法的调用或对的调用，在执行之前，对执行此任
+     * 务的状态或对其执行操作的任何数据的后续修改都不一定能由执行该任务的线程以外的任何
+     * 线程一致地观察到。 {@link #isDone}返回{@code true}。
+     *
      * @return {@code this}, to simplify usage
      */
     public final ForkJoinTask<V> fork() {
@@ -712,6 +726,11 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * method to abruptly return by throwing {@code
      * InterruptedException}.
      *
+     * 当{@link #isDone 完成时}返回计算结果。此方法与{@link #get()}的不同之处在
+     * 于，异常完成会导致{@code RuntimeException}或{@code Error}，而不是
+     * {@code ExecutionException}，并且调用线程的中断不是通过抛
+     * 出{@code InterruptedException}导致方法突然返回。
+     *
      * @return the computed result
      */
     public final V join() {
@@ -726,6 +745,9 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * necessary, and returns its result, or throws an (unchecked)
      * {@code RuntimeException} or {@code Error} if the underlying
      * computation did so.
+     *
+     * 开始执行此任务，在必要时等待其完成，然后返回其结果，如果基础计算执行了此操作，
+     * 则抛出（未经检查的）{@ code RuntimeException}或{@code Error}。
      *
      * @return the computed result
      */
@@ -748,6 +770,12 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
      * #getException()} and related methods to check if they have been
      * cancelled, completed normally or exceptionally, or left
      * unprocessed.
+     *
+     * 分叉给定的任务，在每个任务都保留{@code isDone}或遇到（未检查的）异常时返回，
+     * 在这种情况下，异常被重新抛出。如果一个以上的任务遇到一个异常，则此方法将引发这
+     * 些异常中的任何一个。如果任何任务遇到异常，则其他任务可能会被取消。但是，无法保
+     * 证在异常返回时单个任务的执行状态。可以使用{@link #getException()}和相关方
+     * 法来获取每个任务的状态，以检查它们是否已被取消，正常或异常完成或未处理。
      *
      * @param t1 the first task
      * @param t2 the second task

@@ -43,6 +43,12 @@ package java.util.concurrent;
  * elements by consumers invoking {@code take} or {@code poll}, while
  * at other times enqueue elements (via method {@code put}) without
  * waiting for receipt.
+ *
+ * 生产者可以在其中等待消费者接收元素的{@link BlockingQueue}。 {@code TransferQueue}
+ * 例如在消息传递应用程序中可能有用，在该应用程序中，生产者有时（使用方法{@link #transfer}）
+ * 通过消费者调用{@code take}或{@code poll}来等待元素的接收，而在其他情况下无需等待接收就
+ * 将元素排队（通过方法{@code put}）.
+ *
  * {@linkplain #tryTransfer(Object) Non-blocking} and
  * {@linkplain #tryTransfer(Object,long,TimeUnit) time-out} versions of
  * {@code tryTransfer} are also available.

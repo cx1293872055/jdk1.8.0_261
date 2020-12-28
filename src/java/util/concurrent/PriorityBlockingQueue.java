@@ -61,6 +61,12 @@ import sun.misc.SharedSecrets;
  * non-comparable objects (doing so results in
  * {@code ClassCastException}).
  *
+ * 无界的{@linkplain BlockingQueue 阻塞队列}，其使用与类{@link PriorityQueue}
+ * 相同的排序规则，并提供阻塞检索操作。尽管此队列在逻辑上是不受限制的，但是尝试进行添加
+ * 可能会由于资源耗尽而失败（导致{@code OutOfMemoryError}）。此类不允许{@code null}
+ * 元素。依赖{@linkplain Comparable natural ordering}的优先级队列也不允许插入不可比较的对象（这样做会导致
+ * {@code ClassCastException}）。
+ *
  * <p>This class and its iterator implement all of the
  * <em>optional</em> methods of the {@link Collection} and {@link
  * Iterator} interfaces.  The Iterator provided in method {@link

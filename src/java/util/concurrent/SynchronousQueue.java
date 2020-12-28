@@ -58,16 +58,31 @@ import java.util.Spliterators;
  * {@code SynchronousQueue} acts as an empty collection.  This queue
  * does not permit {@code null} elements.
  *
+ * {@linkplain BlockingQueue 阻塞队列}，其中每个插入操作必须等待另一个线程进行
+ * 相应的删除操作，反之亦然。同步队列没有任何内部容量，甚至没有一个容量。您无法在同步
+ * 队列中{@code peek}，因为仅当您尝试删除它时，该元素才存在。您不能插入元素（使用任
+ * 何方法），除非另一个线程试图将其删除；您无法迭代，因为没有要迭代的内容。队列的<em>
+ * head <em>是第一个排队的插入线程试图添加到队列中的元素；如果没有这样的排队线程
+ * ，则没有元素可用于删除，并且{@code poll（）}将返回{@code null}。出于其他
+ * {@code Collection}方法（例如{@code contains}）的目的，{@code SynchronousQueue}
+ * 用作空集合。此队列不允许{@code null}元素。
+ *
  * <p>Synchronous queues are similar to rendezvous channels used in
  * CSP and Ada. They are well suited for handoff designs, in which an
  * object running in one thread must sync up with an object running
  * in another thread in order to hand it some information, event, or
  * task.
  *
+ * 同步队列类似于CSP和Ada中使用的集合通道。它们非常适合切换设计，在该设计中，在一个
+ * 线程中运行的对象必须与在另一个线程中运行的对象同步，以便向其传递一些信息，事件或任务。
+ *
  * <p>This class supports an optional fairness policy for ordering
  * waiting producer and consumer threads.  By default, this ordering
  * is not guaranteed. However, a queue constructed with fairness set
  * to {@code true} grants threads access in FIFO order.
+ *
+ * 此类支持可选的公平性策略，用于订购正在等待的生产者和使用者线程。默认情况下，不保
+ * 证此排序。但是，使用公平性设置为{@code true}构造的队列将按FIFO顺序授予线程访问权限。
  *
  * <p>This class and its iterator implement all of the
  * <em>optional</em> methods of the {@link Collection} and {@link
@@ -948,6 +963,8 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * Retrieves and removes the head of this queue, if another thread
      * is currently making an element available.
      *
+     * 如果另一个线程当前正在使元素可用，则检索并删除此队列的头部。
+     *
      * @return the head of this queue, or {@code null} if no
      *         element is available
      */
@@ -1051,6 +1068,8 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * Always returns {@code null}.
      * A {@code SynchronousQueue} does not return elements
      * unless actively waited on.
+     *
+     * 始终返回{@code null}。除非主动等待，否则{@code SynchronousQueue}不会返回元素。
      *
      * @return {@code null}
      */

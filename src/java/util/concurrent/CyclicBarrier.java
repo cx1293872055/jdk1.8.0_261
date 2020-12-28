@@ -45,6 +45,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * <em>cyclic</em> because it can be re-used after the waiting threads
  * are released.
  *
+ * 一种同步帮助，它允许一组线程全部互相等待以到达一个公共的障碍点。 CyclicBarriers
+ * 在涉及固定大小的线程方的程序中很有用，该线程方有时必须互相等待。该屏障称为<em> cyclic <em>，
+ * 因为它可以在释放等待线程之后重新使用。
+ *
  * <p>A {@code CyclicBarrier} supports an optional {@link Runnable} command
  * that is run once per barrier point, after the last thread in the party
  * arrives, but before any threads are released.

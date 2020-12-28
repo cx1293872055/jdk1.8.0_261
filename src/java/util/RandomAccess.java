@@ -32,6 +32,9 @@ package java.util;
  * behavior to provide good performance when applied to either random or
  * sequential access lists.
  *
+ * <tt> List <tt>实现使用的标记接口，指示它们支持快速（通常为恒定时间）随机访问。该接口
+ * 的主要目的是允许通用算法更改其行为，以便在应用于随机访问列表或顺序访问列表时提供良好的性能。
+ *
  * <p>The best algorithms for manipulating random access lists (such as
  * <tt>ArrayList</tt>) can produce quadratic behavior when applied to
  * sequential access lists (such as <tt>LinkedList</tt>).  Generic list

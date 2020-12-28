@@ -48,6 +48,10 @@ import java.util.concurrent.locks.LockSupport;
  * Exchangers may be useful in applications such as genetic algorithms
  * and pipeline designs.
  *
+ * 线程可以配对并在配对中交换元素的同步点。每个线程在进入{@link #exchange exchange}
+ * 方法时都会显示一些对象，与伙伴线程匹配，并在返回时接收其伙伴的对象。可以将Exchanger视
+ * 为{@link SynchronousQueue}的双向形式。交换器可能在遗传算法和管道设计等应用中很有用。
+ *
  * <p><b>Sample Usage:</b>
  * Here are the highlights of a class that uses an {@code Exchanger}
  * to swap buffers between threads so that the thread filling the

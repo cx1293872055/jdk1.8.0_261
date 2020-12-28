@@ -59,6 +59,9 @@ import java.util.function.Consumer;
  * Like most other concurrent collection implementations, this class
  * does not permit the use of {@code null} elements.
  *
+ * 当许多线程将共享对一个公共集合的访问权限时，{@code ConcurrentLinkedDeque}是一
+ * 个适当的选择。像大多数其他并发集合实现一样，此类不允许使用{@code null}元素。
+ *
  * <p>Iterators and spliterators are
  * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
  *
@@ -102,10 +105,15 @@ public class ConcurrentLinkedDeque<E>
      * supporting interior removes but not interior insertions, as
      * required to support the entire Deque interface.
      *
+     * 这是并发的无锁双端队列的实现，支持内部删除，但不支持内部插入，这是支持整个Deque接口所需的。
+     *
      * We extend the techniques developed for ConcurrentLinkedQueue and
      * LinkedTransferQueue (see the internal docs for those classes).
      * Understanding the ConcurrentLinkedQueue implementation is a
      * prerequisite for understanding the implementation of this class.
+     *
+     * 我们扩展了为ConcurrentLinkedQueue和LinkedTransferQueue开发的技术（有关这
+     * 些类，请参阅内部文档）。了解ConcurrentLinkedQueue实现是理解此类的实现的先决条件。
      *
      * The data structure is a symmetrical doubly-linked "GC-robust"
      * linked list of nodes.  We minimize the number of volatile writes

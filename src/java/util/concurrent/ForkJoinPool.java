@@ -60,6 +60,9 @@ import java.security.Permissions;
  * from non-{@code ForkJoinTask} clients, as well as management and
  * monitoring operations.
  *
+ * {@link ExecutorService}，用于运行{@link ForkJoinTask}。 {@code ForkJoinPool}
+ * 提供了来自非{@code ForkJoinTask}客户端的提交以及管理和监视操作的入口点。
+ *
  * <p>A {@code ForkJoinPool} differs from other kinds of {@link
  * ExecutorService} mainly by virtue of employing
  * <em>work-stealing</em>: all threads in the pool attempt to find and
@@ -72,6 +75,16 @@ import java.security.Permissions;
  * ForkJoinPool}s may also be appropriate for use with event-style
  * tasks that are never joined.
  *
+ * {@ code ForkJoinPool} 与其他类型的 {@link ExecutorService}的不同之处
+ * 主要在于，它采用了<em> work-stealing <em>：池中的所有线程都试图查找并执行提交
+ * 给池的任务和/或由其他活动任务创建（如果不存在，则最终阻止等待工作）。当大多数任务
+ * 产生其他子任务时（大多数{@code ForkJoinTask}也是如此），以及从外部客户端向池中
+ * 提交许多小任务时，这将实现高效处理。特别是在构造函数中将<em> asyncMode <em>设置
+ * 为true时，{@ code ForkJoinPool}s 也可能适用于从未加入的事件样式任务。
+*
+*
+*
+*
  * <p>A static {@link #commonPool()} is available and appropriate for
  * most applications. The common pool is used by any ForkJoinTask that
  * is not explicitly submitted to a specified pool. Using the common
@@ -188,6 +201,14 @@ public class ForkJoinPool extends AbstractExecutorService {
      * individual methods and nested classes contain only brief
      * comments about details.
      *
+     * 此类及其嵌套的类为一组工作线程提供主要功能和控制：来自非FJ线程的提交进入提交
+     * 队列。工作人员执行这些任务，通常将其拆分为其他工作人员可能偷走的子任务。优先
+     * 规则优先处理来自其自身队列（LIFO或FIFO，取决于模式）的任务，然后优先处理其
+     * 他队列中的随机FIFO窃取任务。该框架最初是使用工作窃取来支持树形并行性的工具。
+     * 随着时间的流逝，其可伸缩性优势导致了扩展和更改，以更好地支持更多不同的使用环境。
+     * 因为大多数内部方法和嵌套类是相互关联的，所以这里介绍了它们的主要原理和描述；
+     * 单个方法和嵌套类仅包含有关详细信息的简短注释。
+     *
      * WorkQueues
      * ==========
      *
@@ -212,6 +233,18 @@ public class ForkJoinPool extends AbstractExecutorService {
      * numbers of tasks. To accomplish this, we shift the CAS
      * arbitrating pop vs poll (steal) from being on the indices
      * ("base" and "top") to the slots themselves.
+     *
+     * 大多数操作发生在工作窃取队列中（在嵌套类WorkQueue中）。这些是Deques的特殊
+     * 形式，仅支持四种可能的最终操作中的三种-推入，弹出和轮询（也称为窃取），在进一
+     * 步的约束下，推入和弹出仅从拥有线程（或扩展线程）中调用此处，处于锁定状态），
+     * 而poll可以从其他线程调用。 （如果您不熟悉它们，则可能在继续之前阅读Herlihy和
+     * Shavit的书“多处理器编程的艺术”，第16章对此进行了更详细的描述。）主要的工作窃
+     * 取队列设计大致与Chase和Lev撰写的论文“动态循环窃取Deque”，SPAA 2005（http：
+     * research.sun.comscalablepubsindex.html）和Michael，Saraswat和Vechev
+     * 撰写的“幂等偷窃作品”，PPoPP 2009（http：portal.acm。 orgcitation.cfm？id
+     *  = 1504186）。最终的主要区别在于GC的要求，即即使在生成大量任务的程序中，我们也
+     * 要尽快清空已占用的插槽，以保持尽可能小的占用空间。为了实现这一点，我们将CAS仲裁流
+     * 行与民意调查（窃取）从位于索引（“基础”和“顶部”）上移至广告位本身。
      *
      * Adding tasks then takes the form of a classic array push(task):
      *    q.array[q.top] = task; ++q.top;
@@ -254,6 +287,18 @@ public class ForkJoinPool extends AbstractExecutorService {
      * variants that try once at the apparent base index, else
      * consider alternative actions, rather than method poll, which
      * retries.)
+     *
+     * 因为我们依赖于引用的CASes，所以我们不需要在基础或顶部的标记位。它们是任何
+     * 基于循环的圆形队列中使用的简单整数（例如，请参见ArrayDeque）。对索引的更
+     * 新可确保top == base表示队列为空，但如果没有完全提交推送，弹出或轮询，则可
+     * 能使队列显得非空，这可能会出错。 （方法isEmpty（）检查部分移除最后一个元素
+     * 的情况。）因此，单独考虑的轮询操作并非没有等待。一个小偷不能成功地继续下去，
+     * 直到另一个正在进行的小偷（或者，如果以前是空的，一次推送）完成。但是，总的来
+     * 说，我们至少确保了概率非阻塞性。如果尝试的窃取失败，小偷总是会选择另一个随机
+     * 的受害目标，然后再尝试。因此，为了使一个小偷前进，足以完成任何正在进行的轮询
+     * 或对任何空队列的新推送。 （这就是为什么我们通常使用方法pollAt及其变体在明显
+     * 的基索引处尝试一次，否则考虑替代操作，而不是重试的方法poll。）
+     *
      *
      * This approach also enables support of a user mode in which
      * local task processing is in FIFO, not LIFO order, simply by

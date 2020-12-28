@@ -54,6 +54,10 @@ import java.util.function.Consumer;
  * producer.  The <em>tail</em> of the queue is that element that has
  * been on the queue the shortest time for some producer.
  *
+ * 基于链接节点的无限制{@link TransferQueue}。此队列针对任何给定的生产者对元素FIF
+ * O（先进先出）进行排序。队列的<em> head <em>是某个生产者在队列中停留时间最长的元素
+ * 。队列的<em> tail <em>是该队列中某个生产者最短的时间所在的元素。
+ *
  * <p>Beware that, unlike in most collections, the {@code size} method
  * is <em>NOT</em> a constant-time operation. Because of the
  * asynchronous nature of these queues, determining the current number

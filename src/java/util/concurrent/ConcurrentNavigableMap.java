@@ -40,6 +40,8 @@ import java.util.*;
  * A {@link ConcurrentMap} supporting {@link NavigableMap} operations,
  * and recursively so for its navigable sub-maps.
  *
+ * {@link ConcurrentMap}支持{@link NavigableMap}操作，并且递归地支持其可导航子地图。
+ *
  * <p>This interface is a member of the
  * <a href="{@docRoot}/../technotes/guides/collections/index.html">
  * Java Collections Framework</a>.

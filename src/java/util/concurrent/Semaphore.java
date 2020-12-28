@@ -590,6 +590,8 @@ public class Semaphore implements java.io.Serializable {
     /**
      * Releases the given number of permits, returning them to the semaphore.
      *
+     * 释放给定数量的许可证，将其返回到信号灯。
+     *
      * <p>Releases the given number of permits, increasing the number of
      * available permits by that amount.
      * If any threads are trying to acquire permits, then one
@@ -678,6 +680,9 @@ public class Semaphore implements java.io.Serializable {
      * change dynamically while this method traverses internal data
      * structures.  This method is designed for use in monitoring of the
      * system state, not for synchronization control.
+     *
+     * 返回等待获取的线程数的估计值。该值只是一个估计值，因为在此方法遍历内部数据结构时，
+     * 线程数可能会动态变化。此方法设计用于监视系统状态，而不用于同步控制。
      *
      * @return the estimated number of threads waiting for this lock
      */
