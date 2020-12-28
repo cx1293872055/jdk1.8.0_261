@@ -38,6 +38,11 @@ import sun.misc.SharedSecrets;
  * insertion of non-comparable objects (doing so may result in
  * {@code ClassCastException}).
  *
+ * 基于优先级堆的无限优先级{@linkplain Queue queue}。优先级队列的元素根据其
+ * {@linkplain Comparable natural ordering}或在队列构造时提供的{@link Comparator}进行排序，
+ * 具体取决于使用哪个构造函数。优先级队列不允许{@code null}元素。依赖自然顺序的
+ * 优先级队列也不允许插入不可比较的对象（这样做可能会导致{@code ClassCastException}）。
+ *
  * <p>The <em>head</em> of this queue is the <em>least</em> element
  * with respect to the specified ordering.  If multiple elements are
  * tied for least value, the head is one of those elements -- ties are
@@ -94,6 +99,12 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * natural ordering, if comparator is null: For each node n in the
      * heap and each descendant d of n, n <= d.  The element with the
      * lowest value is in queue[0], assuming the queue is nonempty.
+     *
+     * 表示为平衡二进制堆的优先级队列：queue [n]的两个子级是queue [2n + 1]和
+     * queue [2（n + 1）]。如果比较器为null，则按比较器或元素的自然顺序对优先
+     * 级队列进行排序：对于堆中的每个节点n和n的每个后代d，n <= d。假定队列为非空
+     * ，则具有最低值的元素位于queue [0]中。
+     *
      */
     transient Object[] queue; // non-private to simplify nested class access
 

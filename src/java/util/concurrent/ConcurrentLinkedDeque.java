@@ -50,6 +50,10 @@ import java.util.function.Consumer;
  * An unbounded concurrent {@linkplain Deque deque} based on linked nodes.
  * Concurrent insertion, removal, and access operations execute safely
  * across multiple threads.
+ *
+ * 基于链接节点的无限制并发{@linkplain Deque deque}。并发插入，删除和访问操作可在多
+ * 个线程中安全地执行。
+ *
  * A {@code ConcurrentLinkedDeque} is an appropriate choice when
  * many threads will share access to a common collection.
  * Like most other concurrent collection implementations, this class

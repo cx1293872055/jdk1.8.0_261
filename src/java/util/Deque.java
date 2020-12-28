@@ -43,6 +43,10 @@ package java.util;
  * they may contain, but this interface supports capacity-restricted
  * deques as well as those with no fixed size limit.
  *
+ * 支持在两端插入和删除元素的线性集合。名称<i> deque <i>是“双头队列”的缩写，通常
+ * 发音为“ deck”。大多数{@code Deque}实现对它们可能包含的元素数量没有固定的限制
+ * ，但是此接口支持容量受限的双端队列以及没有固定大小限制的双端队列。
+ *
  * <p>This interface defines methods to access the elements at both
  * ends of the deque.  Methods are provided to insert, remove, and
  * examine the element.  Each of these methods exists in two forms:

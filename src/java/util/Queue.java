@@ -47,6 +47,11 @@ package java.util;
  * implementations; in most implementations, insert operations cannot
  * fail.
  *
+ * 设计用于在处理之前容纳元素的集合。除了基本的{@link java.util.Collection Collection}
+ * 操作之外，队列还提供其他插入，提取和检查操作。这些方法中的每一种都以两种形式存在：一种在操作
+ * 失败时引发异常，另一种返回一个特殊值（{@code null}或{@code false}，具体取决于操作）。插
+ * 入操作的后一种形式专门设计用于容量受限的{@code Queue}实现；在大多数实现中，插入操作不会失败。
+ *
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
  * <caption>Summary of Queue methods</caption>
  *  <tr>

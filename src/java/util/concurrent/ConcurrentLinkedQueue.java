@@ -48,6 +48,8 @@ import java.util.function.Consumer;
 /**
  * An unbounded thread-safe {@linkplain Queue queue} based on linked nodes.
  * This queue orders elements FIFO (first-in-first-out).
+ * 基于链接节点的无界线程安全{@linkplain Queue queue}。该队列对元素FIFO（先进先出）进行排序。
+ *
  * The <em>head</em> of the queue is that element that has been on the
  * queue the longest time.
  * The <em>tail</em> of the queue is that element that has been on the
@@ -71,6 +73,10 @@ import java.util.function.Consumer;
  * java.util.ConcurrentModificationException}, and may proceed concurrently
  * with other operations.  Elements contained in the queue since the creation
  * of the iterator will be returned exactly once.
+ *
+ * 迭代器是弱一致的，返回元素在创建迭代器时或创建迭代器后的某个时刻反映队列的状态。
+ * 它们不会<em>不<em>抛出{@link java.util.ConcurrentModificationException}，并且
+ * 可能与其他操作并发进行。自创建迭代器以来，队列中包含的元素将仅返回一次。
  *
  * <p>Beware that, unlike in most collections, the {@code size} method
  * is <em>NOT</em> a constant-time operation. Because of the
@@ -480,6 +486,10 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * elements.
      * Returns {@code true} if this queue contained the specified element
      * (or equivalently, if this queue changed as a result of the call).
+     *
+     * 从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个
+     * 这样的元素，则删除元素{@code e}，使{@code o.equals（e）}。如果此队列包含指定
+     * 的元素（或者等效地，如果此队列由于调用而更改），则返回{@code true}。
      *
      * @param o element to be removed from this queue, if present
      * @return {@code true} if this queue changed as a result of the call

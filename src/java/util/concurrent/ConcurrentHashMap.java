@@ -84,6 +84,12 @@ import java.util.stream.Stream;
  * interoperable with {@code Hashtable} in programs that rely on its
  * thread safety but not on its synchronization details.
  *
+ * 一个哈希表，它支持检索的完全并发性和更新的高期望并发性。此类遵循与{@link java.util.Hashtable}
+ * 相同的功能规范，并包括与{@code Hashtable}的每个方法相对应的方法版本。但是，
+ * 即使所有操作都是线程安全的，检索操作也不需要进行锁定，并且没有任何支持以防止所
+ * 有访问的方式锁定整个表的支持。在依赖于其线程安全性而不依赖于其同步详细信息的程
+ * 序中，此类可以与{@code Hashtable}完全互操作。
+ *
  * <p>Retrieval operations (including {@code get}) generally do not
  * block, so may overlap with update operations (including {@code put}
  * and {@code remove}). Retrievals reflect the results of the most
@@ -278,6 +284,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * the same or better than java.util.HashMap, and to support high
      * initial insertion rates on an empty table by many threads.
      *
+     * 该哈希表的主要设计目标是保持并发可读性（通常是get（）方法，还包括迭代器和相关方法）
+     * ，同时最大程度地减少更新争用。次要目标是使空间消耗保持与java.util.HashMap相同或
+     * 更好，并通过许多线程支持在空表上的高初始插入率。
+     *
      * This map usually acts as a binned (bucketed) hash table.  Each
      * key-value mapping is held in a Node.  Most nodes are instances
      * of the basic Node class with hash, key, value, and next
@@ -294,6 +304,16 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * so the impact of carrying around some unused fields is
      * insignificant.)
      *
+     * 该映射通常用作装箱（存储桶）的哈希表。每个键值映射都保存在一个节点中。大多数节
+     * 点是基本Node类的实例，具有哈希，键，值和下一个字段。但是，存在各种子类：TreeNode
+     * 被安排在平衡树中，而不是列表中。 TreeBins拥有TreeNodes集的根。在调整大小期间
+     * ，ForwardingNodes放置在垃圾箱的顶部。在computeIfAbsent和相关方法中建立值时
+     * ，ReservationNode用作占位符。 TreeBin，ForwardingNode和ReservationNode
+     * 类型不包含常规用户键，值或哈希，并且在搜索等过程中易于区分，因为它们具有负的哈希字
+     * 段以及空键和值字段。 （这些特殊节点是不常见的或瞬态的，因此携带一些未使用的字段的
+     * 影响微不足道。）
+     *
+     *
      * The table is lazily initialized to a power-of-two size upon the
      * first insertion.  Each bin in the table normally contains a
      * list of Nodes (most often, the list has only zero or one Node).
@@ -302,10 +322,18 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * adding further indirections, we use intrinsics
      * (sun.misc.Unsafe) operations.
      *
+     * 该表在第一次插入时被延迟初始化为2的幂。表中的每个bin通常包含一个Node列表
+     * （大多数情况下，该列表只有零个或一个Node）。表访问需要易失性的读，写和CASes。
+     * 由于没有其他方法可以在不增加其他间接调用的情况下进行安排，因此我们使用内部函数
+     * （sun.misc.Unsafe）。
+     *
      * We use the top (sign) bit of Node hash fields for control
      * purposes -- it is available anyway because of addressing
      * constraints.  Nodes with negative hash fields are specially
      * handled or ignored in map methods.
+     *
+     * 我们将Node哈希字段的最高（符号）位用于控制目的-由于寻址限制，它始终可用。
+     * 具有负哈希字段的节点在map方法中经过特殊处理或忽略。
      *
      * Insertion (via put or its variants) of the first node in an
      * empty bin is performed by just CASing it to the bin.  This is
@@ -317,12 +345,22 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * a lock. Locking support for these locks relies on builtin
      * "synchronized" monitors.
      *
+     * 将第一个节点插入（通过put或其变体）到空容器中，只需将其CASing到容器中即可。
+     * 到目前为止，这是大多数密钥散列下的put操作的最常见情况。其他更新操作（插入，删
+     * 除和替换）需要锁。我们不想浪费将不同的锁对象与每个bin关联所需的空间，因此可以
+     * 将bin列表本身的第一个节点用作锁。对这些锁的锁定支持依赖于内置的“同步”监视器。
+     *
      * Using the first node of a list as a lock does not by itself
      * suffice though: When a node is locked, any update must first
      * validate that it is still the first node after locking it, and
      * retry if not. Because new nodes are always appended to lists,
      * once a node is first in a bin, it remains first until deleted
      * or the bin becomes invalidated (upon resizing).
+     *
+     * 但是，将列表的第一个节点用作锁定本身并不能满足要求：锁定节点时，任何更新都必
+     * 须首先确认它仍然是锁定后的第一个节点，否则请重试。由于新节点总是附加到列表中
+     * ，因此，一旦某个节点首次出现在bin中，它将一直保持在第一个位置，直到删除或bi
+     * n失效（调整大小）。
      *
      * The main disadvantage of per-bin locks is that other update
      * operations on other nodes in a bin list protected by the same
@@ -337,6 +375,13 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * list size k are (exp(-0.5) * pow(0.5, k) / factorial(k)). The
      * first values are:
      *
+     * 每个bin锁的主要缺点是，受同一锁保护的bin列表中其他节点上的其他更新操作可能会
+     * 停止，例如，当用户equals（）或映射函数花费很长时间时。但是，从统计学上讲，在
+     * 随机哈希码下，这不是一个常见问题。理想情况下，箱中节点的频率遵循泊松分布（htt
+     * p：en.wikipedia.orgwikiPoisson_distribution），平均参数约为0.5（给定
+     * 调整大小阈值为0.75），尽管由于调整大小粒度而有较大差异。忽略方差，列表大小k的
+     * 预期出现是（exp（-0.5）pow（0.5，k）因数（k））。第一个值是：
+     *
      * 0:    0.60653066
      * 1:    0.30326533
      * 2:    0.07581633
@@ -350,6 +395,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      *
      * Lock contention probability for two threads accessing distinct
      * elements is roughly 1 / (8 * #elements) under random hashes.
+     *
+     * 在随机哈希下，两个线程访问不同元素的锁争用概率大约为1（8个元素）。
      *
      * Actual hash code distributions encountered in practice
      * sometimes deviate significantly from uniform randomness.  This
@@ -993,6 +1040,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * Maps the specified key to the specified value in this table.
      * Neither the key nor the value can be null.
      *
+     * 将指定的键映射到此表中的指定值。键或值都不能为null。
+     *
      * <p>The value can be retrieved by calling the {@code get} method
      * with a key that is equal to the original key.
      *
@@ -1101,6 +1150,9 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * Implementation for the four public remove/replace methods:
      * Replaces node value with v, conditional upon match of cv if
      * non-null.  If resulting value is null, delete.
+     *
+     * 四个公共removereplace方法的实现：用v替换节点值，条件是cv匹配（如果非空）。如果结果值为空，则删除。
+     *
      */
     final V replaceNode(Object key, V value, Object cv) {
         int hash = spread(key.hashCode());
@@ -1628,6 +1680,11 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * is in progress, so the computation should be short and simple,
      * and must not attempt to update any other mappings of this map.
      *
+     * 如果指定的键尚未与值关联，则尝试使用给定的映射函数计算其值，并将其输入此映射中
+     * ，除非{@code null}。整个方法调用是原子执行的，因此每个键最多可应用一次该功能
+     * 。在进行计算时，可能会阻止其他线程在此映射上进行的某些尝试的更新操作，因此计算
+     * 应简短而简单，并且不得尝试更新此映射的任何其他映射。
+     *
      * @param key key with which the specified value is to be associated
      * @param mappingFunction the function to compute a value
      * @return the current (existing or computed) value associated with
@@ -1730,6 +1787,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * computation should be short and simple, and must not attempt to
      * update any other mappings of this map.
      *
+     * 如果存在指定键的值，请尝试在给定键及其当前映射值的情况下计算新映射。整个方法
+     * 调用是原子执行的。在进行计算时，可能会阻止其他线程在此映射上进行的某些尝试的
+     * 更新操作，因此计算应简短而简单，并且不得尝试更新此映射的任何其他映射。
+     *
      * @param key key with which a value may be associated
      * @param remappingFunction the function to compute a value
      * @return the new value associated with the specified key, or null if none
@@ -1819,6 +1880,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * may be blocked while computation is in progress, so the
      * computation should be short and simple, and must not attempt to
      * update any other mappings of this Map.
+     *
+     * 尝试为指定键及其当前映射值（如果没有当前映射，则为{@code null}）计算映射。
+     * 整个方法调用是原子执行的。在进行计算时，可能会阻止其他线程在此映射上进行的某
+     * 些尝试的更新操作，因此计算应简短而简单，并且不得尝试更新此Map的任何其他映射。
      *
      * @param key key with which the specified value is to be associated
      * @param remappingFunction the function to compute a value
@@ -1947,6 +2012,11 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * while computation is in progress, so the computation should be
      * short and simple, and must not attempt to update any other
      * mappings of this Map.
+     *
+     * 如果指定的键尚未与（非空）值关联，请将其与给定值关联。否则，用给定的重映射函数
+     * 的结果替换该值，或者如果{@code null}则将其删除。整个方法调用是原子执行的。在
+     * 进行计算时，可能会阻止其他线程在此映射上进行的某些尝试的更新操作，因此计算应简
+     * 短而简单，并且不得尝试更新此Map的任何其他映射。
      *
      * @param key key with which the specified value is to be associated
      * @param value the value to use if absent
@@ -2125,6 +2195,9 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * Creates a new {@link Set} backed by a ConcurrentHashMap
      * from the given type to {@code Boolean.TRUE}.
      *
+     * 创建一个新的{@link Set}，由给定类型的ConcurrentHashMap支持，
+     * 并返回到{@code Boolean.TRUE}。
+     *
      * @param initialCapacity The implementation performs internal
      * sizing to accommodate this many elements.
      * @param <K> the element type of the returned set
@@ -2159,6 +2232,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * A node inserted at head of bins during transfer operations.
+     * 在传输操作期间插入垃圾箱顶部的节点。
      */
     static final class ForwardingNode<K,V> extends Node<K,V> {
         final Node<K,V>[] nextTable;
@@ -2196,6 +2270,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * A place-holder node used in computeIfAbsent and compute
+     * 在computeIfAbsent和compute中使用的占位符节点
      */
     static final class ReservationNode<K,V> extends Node<K,V> {
         ReservationNode() {
@@ -2250,6 +2325,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * after a transfer to see if another resize is already needed
      * because resizings are lagging additions.
      *
+     * 增加计数，如果表太小且尚未调整大小，则启动传输。如果已经调整大小，则在
+     * 工作可用时帮助执行转移。转移后重新检查占用率，以查看是否已经需要其他调
+     * 整大小，因为调整大小是滞后的。
+     *
      * @param x the count to add
      * @param check if <0, don't check resize, if <= 1 only check if uncontended
      */
@@ -2293,6 +2372,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Helps transfer if a resize is in progress.
+     * 如果正在调整大小，则有助于传输。
      */
     final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
         Node<K,V>[] nextTab; int sc;
@@ -2316,6 +2396,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Tries to presize table to accommodate the given number of elements.
+     *
+     * 尝试调整表的大小以容纳给定数量的元素。
      *
      * @param size number of elements (doesn't need to be perfectly accurate)
      */
@@ -2363,6 +2445,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /**
      * Moves and/or copies the nodes in each bin to new table. See
      * above for explanation.
+     * 将每个bin中的节点移动和或复制到新表中。请参阅上面的说明。
      */
     private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
         int n = tab.length, stride;
@@ -4198,6 +4281,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /**
      * Performs the given action for each non-null transformation
      * of each entry.
+     *
+     * 对每个条目的每个非null转换执行给定的操作。
      *
      * @param parallelismThreshold the (estimated) number of elements
      * needed for this operation to be executed in parallel

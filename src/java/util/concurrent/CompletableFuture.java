@@ -58,6 +58,9 @@ import java.util.concurrent.locks.LockSupport;
  * supporting dependent functions and actions that trigger upon its
  * completion.
  *
+ * 可以显式完成（设置其值和状态）并可以用作{@link CompletionStage}的
+ * {@link Future}，支持在完成时触发的相关功能和操作。
+ *
  * <p>When two or more threads attempt to
  * {@link #complete complete},
  * {@link #completeExceptionally completeExceptionally}, or
@@ -118,6 +121,10 @@ public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
      * applies across normal vs exceptional outcomes, sync vs async
      * actions, binary triggers, and various forms of completions.
      *
+     * CompletableFuture可能具有从属完成动作，收集在链接堆栈中。它通过CASing
+     * 一个结果字段来自动完成，然后弹出并运行这些操作。这适用于正常与异常结果，同
+     * 步与异步操作，二进制触发以及各种形式的完成。
+     *
      * Non-nullness of field result (set via CAS) indicates done.  An
      * AltResult is used to box null as a result, as well as to hold
      * exceptions.  Using a single field makes completion simple to
@@ -129,6 +136,12 @@ public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
      * Even though some of the generics casts are unchecked (see
      * SuppressWarnings annotations), they are placed to be
      * appropriate even if checked.
+     *
+     * 字段结果为非空（通过CAS设置）表示已完成。 AltResult用于将结果装箱为空，并
+     * 用于保存异常。使用单个字段使完成易于检测和触发。编码和解码很简单，但是却增加
+     * 了将异常与目标联系起来的麻烦。较小的简化依赖于（静态）NIL（将空结果装箱）是
+     * 唯一具有空异常字段的AltResult，因此我们通常不需要显式比较。即使某些泛型转
+     * 换未选中（请参见SuppressWarnings注释），它们也被放置为适当，即使已选中。
      *
      * Dependent actions are represented by Completion objects linked
      * as Treiber stacks headed by field "stack". There are Completion
@@ -142,8 +155,18 @@ public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
      * to maintain claims). It is also declared as Runnable to allow
      * usage with arbitrary executors.
      *
+     * 从属动作由完成对象表示，这些对象链接为以“堆栈”字段为标题的Treiber堆栈。每
+     * 种操作都有完成类，分为单输入（UniCompletion），双输入（BiCompletion）
+     * ，投影（BiCompletions使用两个输入中的一个（不是两个）），共享
+     * （CoCompletion，被两个输入中的第二个使用）的完成类源），零输入源操作和释
+     * 放阻止服务员的信号器。类完成扩展了ForkJoinTask以启用异步执行（不增加空间开
+     * 销，因为我们利用其“标记”方法来维护声明）。它也被声明为Runnable，以允许与任
+     * 意执行程序一起使用。
+     *
      * Support for each kind of CompletionStage relies on a separate
      * class, along with two CompletableFuture methods:
+     *
+     * 对每种CompletionStage的支持都依赖于一个单独的类以及两个CompletableFuture方法：
      *
      * * A Completion class with name X corresponding to function,
      *   prefaced with "Uni", "Bi", or "Or". Each class contains
