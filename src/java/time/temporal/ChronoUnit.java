@@ -110,6 +110,8 @@ public enum ChronoUnit implements TemporalUnit {
     /**
      * Unit that represents the concept of half a day, as used in AM/PM.
      * For the ISO calendar system, it is equal to 12 hours.
+     *
+     * 代表半天概念的单位，在AMPM中使用。对于ISO日历系统，它等于12小时。
      */
     HALF_DAYS("HalfDays", Duration.ofSeconds(43200)),
     /**
@@ -134,6 +136,9 @@ public enum ChronoUnit implements TemporalUnit {
      * Unit that represents the concept of a month.
      * For the ISO calendar system, the length of the month varies by month-of-year.
      * The estimated duration of a month is one twelfth of {@code 365.2425 Days}.
+     *
+     * 代表一个月概念的单位。对于ISO日历系统，月份的长度因一年中的月份而异。估计的持续时间为{@code 365.2425天数}的十二分之一。
+     *
      * <p>
      * When used with other calendar systems it must correspond to an integral number of days.
      */
@@ -176,6 +181,9 @@ public enum ChronoUnit implements TemporalUnit {
      * The ISO calendar system doesn't have eras thus it is impossible to add
      * an era to a date or date-time.
      * The estimated duration of the era is artificially defined as {@code 1,000,000,000 Years}.
+     *
+     * 代表时代概念的单位。 ISO日历系统没有纪元，因此无法在日期或日期时间中添加纪元。人为地将时代的估计持续时间定义为{@code 1,000,000,000 Years}。
+     *
      * <p>
      * When used with other calendar systems there are no restrictions on the unit.
      */
@@ -184,6 +192,9 @@ public enum ChronoUnit implements TemporalUnit {
      * Artificial unit that represents the concept of forever.
      * This is primarily used with {@link TemporalField} to represent unbounded fields
      * such as the year or era.
+     *
+     * 代表永恒概念的人为单位。它主要与{@link TemporalField}一起使用，以表示无限制的字段，例如年份或时代。
+     *
      * The estimated duration of the era is artificially defined as the largest duration
      * supported by {@code Duration}.
      */

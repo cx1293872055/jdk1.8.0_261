@@ -207,6 +207,10 @@ import java.util.Objects;
 public final class Instant
         implements Temporal, TemporalAdjuster, Comparable<Instant>, Serializable {
 
+    public static void main(String[] args) {
+        Instant instant = Instant.now();
+        System.out.println(instant);
+    }
     /**
      * Constant for the 1970-01-01T00:00:00Z epoch instant.
      */

@@ -122,6 +122,11 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * queues is that any operation can figure out which mode the
      * queue is in, and act accordingly without needing locks.
      *
+     * 双队列（和类似的堆栈）是在任何给定时间保存“数据”（由put操作提供的项，或“
+     * 请求”）的插槽，表示代入操作，或者为空。对“实现”的调用（即，从保存数据的队
+     * 列中请求商品的调用，反之亦然）使互补节点出队。这些队列最有趣的功能是，任何
+     * 操作都可以弄清楚队列所处的模式，并且无需锁就可以采取相应的措施。
+     *
      * Both the queue and stack extend abstract class Transferer
      * defining the single method transfer that does a put or a
      * take. These are unified into a single method because in dual
@@ -782,6 +787,9 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
 
         /**
          * Gets rid of cancelled node s with original predecessor pred.
+         *
+         * 去除具有原始前任pred的已取消节点s。
+         *
          */
         void clean(QNode pred, QNode s) {
             s.waiter = null; // forget thread
@@ -792,15 +800,21 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
              * "cleanMe", deleting the previously saved version
              * first. At least one of node s or the node previously
              * saved can always be deleted, so this always terminates.
+             *
+             * 在任何给定时间，列表中的一个节点都无法删除-最后插入的节点。为了解决
+             * 这个问题，如果我们不能删除s，我们将其前身保存为“ cleanMe”，首先删
+             * 除之前保存的版本。节点s或先前保存的节点中的至少一个始终可以被删除，
+             * 因此该操作始终终止。
+             *
              */
-            while (pred.next == s) { // Return early if already unlinked
+            while (pred.next == s) { // Return early if already unlinked 如果已取消链接，请提早返回
                 QNode h = head;
-                QNode hn = h.next;   // Absorb cancelled first node as head
+                QNode hn = h.next;   // Absorb cancelled first node as head 吸收取消的第一个节点作为头
                 if (hn != null && hn.isCancelled()) {
                     advanceHead(h, hn);
                     continue;
                 }
-                QNode t = tail;      // Ensure consistent read for tail
+                QNode t = tail;      // Ensure consistent read for tail 确保尾部读数一致
                 if (t == h)
                     return;
                 QNode tn = t.next;

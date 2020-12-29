@@ -61,6 +61,12 @@ import sun.misc.VM;
  * tasks (for example, each a {@link ForkJoinTask}) use random numbers
  * in parallel in thread pools.
  *
+ * 隔离到当前线程的随机数生成器。像{@link java.lang.Math}类使用的全局{@link java.util.Random}
+ * 生成器一样，{@code ThreadLocalRandom}会使用内部生成的种子进行初始化，否则无法进行修改。如果适用
+ * ，在并发程序中使用{@code ThreadLocalRandom}而不是共享的{@code Random}对象通常会遇到更少的开
+ * 销和争用。当多个任务（例如每个{@link ForkJoinTask}）在线程池中并行使用随机数时，使用{@code ThreadLocalRandom}
+ * 特别合适。
+ *
  * <p>Usages of this class should typically be of the form:
  * {@code ThreadLocalRandom.current().nextX(...)} (where
  * {@code X} is {@code Int}, {@code Long}, etc).

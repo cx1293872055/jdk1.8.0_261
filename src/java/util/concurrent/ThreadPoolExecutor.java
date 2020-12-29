@@ -1279,19 +1279,37 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *
      * @param corePoolSize the number of threads to keep in the pool, even
      *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     *
+     *        corePoolSize 除非设置了{@link #allowCoreThreadTimeOut}，即使它们处于
+     *                     空闲状态也要保留在池中的线程数
+     *
      * @param maximumPoolSize the maximum number of threads to allow in the
      *        pool
+     *        maximumPoolSize 池中允许的最大线程数
+     *
      * @param keepAliveTime when the number of threads is greater than
      *        the core, this is the maximum time that excess idle threads
      *        will wait for new tasks before terminating.
+     *        当线程数大于核心数时的keepAliveTime，这是多余的空闲线程将在终止之前等待
+     *        新任务的最长时间。
+     *
      * @param unit the time unit for the {@code keepAliveTime} argument
+     *        unit {@code keepAliveTime}参数的时间单位{@link TimeUnit}
+     *
      * @param workQueue the queue to use for holding tasks before they are
      *        executed.  This queue will hold only the {@code Runnable}
      *        tasks submitted by the {@code execute} method.
+     *        workQueue 在执行任务之前用于保留任务的队列。该队列将仅保存由
+     *        {@link #execute}方法提交的{@link Runnable}任务。
+     *
      * @param threadFactory the factory to use when the executor
      *        creates a new thread
+     *        threadFactory执行程序创建新线程时要使用的工厂{@link ThreadFactory}
+     *
      * @param handler the handler to use when execution is blocked
      *        because the thread bounds and queue capacities are reached
+     *        处理程序由于达到线程边界和队列容量而被阻止执行时使用的处理程序
+     *
      * @throws IllegalArgumentException if one of the following holds:<br>
      *         {@code corePoolSize < 0}<br>
      *         {@code keepAliveTime < 0}<br>
@@ -2019,6 +2037,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * directly in the calling thread of the {@code execute} method,
      * unless the executor has been shut down, in which case the task
      * is discarded.
+     *
+     * 拒绝任务的处理程序，它直接在{@code execute}方法的调用线程中运行拒绝任务，
+     * 除非执行器已关闭，在这种情况下，该任务将被丢弃。
      */
     public static class CallerRunsPolicy implements RejectedExecutionHandler {
         /**
@@ -2043,6 +2064,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * A handler for rejected tasks that throws a
      * {@code RejectedExecutionException}.
+     *
+     * 抛出{@code RejectedExecutionException}的拒绝任务处理程序。
+     *
      */
     public static class AbortPolicy implements RejectedExecutionHandler {
         /**
@@ -2067,6 +2091,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * A handler for rejected tasks that silently discards the
      * rejected task.
+     *
+     * 拒绝任务的处理程序，静默丢弃被拒绝的任务。
+     *
      */
     public static class DiscardPolicy implements RejectedExecutionHandler {
         /**
@@ -2088,6 +2115,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * A handler for rejected tasks that discards the oldest unhandled
      * request and then retries {@code execute}, unless the executor
      * is shut down, in which case the task is discarded.
+     *
+     * 拒绝任务的处理程序，它丢弃最旧的未处理请求，然后重试{@code execute}，除非执行器被关闭，在这种情况下，该任务将被丢弃。
+     *
      */
     public static class DiscardOldestPolicy implements RejectedExecutionHandler {
         /**

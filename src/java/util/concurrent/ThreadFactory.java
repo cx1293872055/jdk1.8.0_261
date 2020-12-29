@@ -40,6 +40,9 @@ package java.util.concurrent;
  * removes hardwiring of calls to {@link Thread#Thread(Runnable) new Thread},
  * enabling applications to use special thread subclasses, priorities, etc.
  *
+ * 根据需要创建新线程的对象。使用线程工厂可以消除对{@link Thread#Thread(Runnable)new Thread}
+ * 的调用的繁琐工作，从而使应用程序可以使用特殊的线程子类，优先级等。
+ *
  * <p>
  * The simplest implementation of this interface is just:
  *  <pre> {@code
