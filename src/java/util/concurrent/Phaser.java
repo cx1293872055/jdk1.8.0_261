@@ -267,6 +267,9 @@ public class Phaser {
      * This class implements an extension of X10 "clocks".  Thanks to
      * Vijay Saraswat for the idea, and to Vivek Sarkar for
      * enhancements to extend functionality.
+     *
+     * 此类实现X10“时钟”的扩展。感谢Vijay Saraswat的想法，以及Vivek Sarkar的扩展以扩展功能。
+     *
      */
 
     /**

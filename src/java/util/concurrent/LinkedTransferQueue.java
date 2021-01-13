@@ -119,6 +119,12 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
      * points to the last node on the queue (or again null if
      * empty). For example, here is a possible queue with four data
      * elements:
+     * 可以使用Michael＆Scott（M＆S）无锁队列算法（http：//www.cs.rochester
+     * .eduuscottpapers1996_PODC_queues.pdf）的变体来实现FIFO双队列。它维护
+     * 两个指针字段“ head”，它们指向一个（匹配的）节点，该节点又指向第一个实际的（
+     * 不匹配的）队列节点（如果为空，则为null）；和“ tail”指向队列的最后一个节点（
+     * 如果为空，则再次为null）。例如，这是一个可能的队列，其中包含四个数据元素：
+     *
      *
      *  head                tail
      *    |                   |
@@ -135,6 +141,13 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
      * However, the nature of dual queues enables a simpler tactic for
      * improving M&S-style implementations when dual-ness is needed.
      *
+     * 众所周知，在维护（通过CAS）这些头和尾指针时，M＆S队列算法容易受到可伸缩性和
+     * 开销的限制。这导致了减少竞争的变体的发展，例如消除数组（请参阅Moir等人，htt
+     * p：//portal.acm.orgcitation.cfm？id = 1074013）和乐观的后指针（请参
+     * 阅Ladan-Mozes和Shavit，http：people.csail）。 .mit.eduedyapublic
+     * ationsOptimisticFIFOQueue-journal.pdf）。但是，双重队列的性质使得在
+     * 需要双重性时可以采用一种更简单的策略来改进M＆S样式的实现。
+     *
      * In a dual queue, each node must atomically maintain its match
      * status. While there are other possible variants, we implement
      * this here as: for a data-mode node, matching entails CASing an
@@ -150,6 +163,14 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
      * support deletion of interior elements, such as
      * j.u.c.ConcurrentLinkedQueue.)
      *
+     * 在双队列中，每个节点必须自动保持其匹配状态。虽然还有其他可能的变体，但我们在
+     * 这里实现为：对于数据模式节点，匹配需要在匹配时将CAS的“ item”字段从非null
+     * 数据值转换为null，反之亦然，对于请求节点，CASing从空为数据值。 （请注意，
+     * 这种类型的队列的线性化属性易于验证-元素可通过链接使用，而不能通过匹配使用。
+     * ）与普通M＆S队列相比，双队列的此属性要求每个enqdeq对额外进行一次成功的原子
+     * 操作。但这也使队列维护机制的成本降低。 （这种想法的变体甚至适用于支持删除内
+     * 部元素的非双重队列，例如j.u.c.ConcurrentLinkedQueue。）
+     *
      * Once a node is matched, its match status can never again
      * change.  We may thus arrange that the linked list of them
      * contain a prefix of zero or more matched nodes, followed by a
@@ -164,6 +185,14 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
      * initially empty).  While this would be a terrible idea in
      * itself, it does have the benefit of not requiring ANY atomic
      * updates on head/tail fields.
+     *
+     * 节点匹配后，其匹配状态将永远不会再改变。因此，我们可以安排它们的链表包含零个
+     * 或多个匹配节点的前缀，后跟零个或多个不匹配节点的后缀。 （请注意，我们将前缀
+     * 和后缀都设置为零长度，这反过来意味着我们不使用虚拟头。）如果我们不关心时间或
+     * 空间效率，则可以通过以下方式正确地执行入队和出队操作：从指针遍历到初始节点；
+     * 对匹配中的第一个不匹配节点的项进行CAS处理，对追加中的尾随节点的下一个字段进
+     * 行CAS处理。 （加上最初装空的一些特殊外壳）。尽管这本身就是一个可怕的想法，
+     * 但它的好处是不需要对头尾字段进行任何原子更新。
      *
      * We introduce here an approach that lies between the extremes of
      * never versus always updating queue (head and tail) pointers.

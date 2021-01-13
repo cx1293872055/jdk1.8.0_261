@@ -62,6 +62,11 @@ package java.util.concurrent;
  * minimum granularity size (for example 10 here) for which you always
  * sequentially solve rather than subdividing.
  *
+ * 但是，除了是计算斐波那契函数的愚蠢方法（您在实践中使用一种简单的快速线性算法）外，
+ * 由于最小的子任务太小而不值得拆分，因此执行效果可能很差。相反，几乎对于所有forkjoin
+ * 应用程序都是如此，您将选择一些最小粒度大小（例如此处的10），您必须始终对其进行顺序求
+ * 解而不是细分。
+ *
  * @since 1.7
  * @author Doug Lea
  */

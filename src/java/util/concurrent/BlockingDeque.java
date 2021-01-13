@@ -41,6 +41,9 @@ import java.util.*;
  * for the deque to become non-empty when retrieving an element, and wait for
  * space to become available in the deque when storing an element.
  *
+ * {@link Deque}额外支持阻止操作，这些操作将在检索元素时等待双端队列变为非空，
+ * 并在存储元素时等待双端队列中的空间可用。
+ *
  * <p>{@code BlockingDeque} methods come in four forms, with different ways
  * of handling operations that cannot be satisfied immediately, but may be
  * satisfied at some point in the future:

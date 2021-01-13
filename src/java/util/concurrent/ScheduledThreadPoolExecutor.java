@@ -48,11 +48,18 @@ import java.util.*;
  * flexibility or capabilities of {@link ThreadPoolExecutor} (which
  * this class extends) are required.
  *
+ * {@link ThreadPoolExecutor}可以另外安排命令在给定的延迟后运行或定期执行。
+ * 当需要多个工作线程时，或者在需要{@link ThreadPoolExecutor}（此类扩展）的
+ * 附加灵活性或功能时，此类比{@link java.util.Timer}更可取。
+ *
  * <p>Delayed tasks execute no sooner than they are enabled, but
  * without any real-time guarantees about when, after they are
  * enabled, they will commence. Tasks scheduled for exactly the same
  * execution time are enabled in first-in-first-out (FIFO) order of
  * submission.
+ *
+ * 延迟任务的执行不早于启用的时间，但是对于启用后的启动时间，没有任何实时保证。按照
+ * 提交的先进先出（FIFO）顺序启用计划执行时间完全相同的任务。
  *
  * <p>When a submitted task is cancelled before it is run, execution
  * is suppressed. By default, such a cancelled task is not
@@ -121,7 +128,6 @@ import java.util.*;
 public class ScheduledThreadPoolExecutor
         extends ThreadPoolExecutor
         implements ScheduledExecutorService {
-
     /*
      * This class specializes ThreadPoolExecutor implementation by
      *
@@ -147,6 +153,22 @@ public class ScheduledThreadPoolExecutor
      *    instrumentation, which are needed because subclasses cannot
      *    otherwise override submit methods to get this effect. These
      *    don't have any impact on pool control logic though.
+     *
+     * 此类通过专门研究ThreadPoolExecutor的实现。
+     *
+     * 1.使用自定义任务类型ScheduledFutureTask来处理任务，即使是不需要调度的任务
+     * （即使用ExecutorService提交的任务，而不是ScheduledExecutorService方法
+     * ）也被视为延迟零延迟的任务。
+     *
+     * 2.使用自定义队列（DelayedWorkQueue），这是无界DelayQueue的变体。与ThreadPoolExecutor相比
+     * ，缺少容量限制以及corePoolSize和maximumPoolSize实际上相同的事实简化了某些执行机制（请参阅delayExecute）。
+     *
+     * 3.支持可选的关机后运行参数，这会导致关闭关机方法以删除和取消在关机后不应运行的
+     * 任务，以及在任务（重新）提交与关机重叠时使用不同的重新检查逻辑。
+     *
+     * 4.允许进行拦截和检测的任务修饰方法，这是必需的，因为子类无法以其他方式覆盖
+     * Submit方法以获得此效果。但是，这些对池控制逻辑没有任何影响。
+     *
      */
 
     /**
@@ -204,6 +226,8 @@ public class ScheduledThreadPoolExecutor
 
         /**
          * Creates a one-shot action with given nanoTime-based trigger time.
+         *
+         * 使用给定的基于nanoTime的触发时间创建一次动作。
          */
         ScheduledFutureTask(Runnable r, V result, long ns) {
             super(r, result);
@@ -319,6 +343,11 @@ public class ScheduledThreadPoolExecutor
      * is being added, cancel and remove it if required by state and
      * run-after-shutdown parameters.
      *
+     * 延迟或定期任务的主要执行方法。如果关闭了池，则拒绝任务。否则，将任务添加到队
+     * 列中，并在必要时启动线程以运行它。 （我们无法预先启动线程来运行任务，因为该任
+     * 务（可能还不应该运行）。）如果在添加任务时关闭了池，则根据状态和运行后要求取
+     * 消并删除它。关闭参数。
+     *
      * @param task the task
      */
     private void delayedExecute(RunnableScheduledFuture<?> task) {
@@ -389,6 +418,9 @@ public class ScheduledThreadPoolExecutor
      * This method can be used to override the concrete
      * class used for managing internal tasks.
      * The default implementation simply returns the given task.
+     *
+     * 修改或替换用于执行可运行对象的任务。此方法可用于覆盖用于管理内部任务
+     * 的具体类。默认实现只是返回给定的任务。
      *
      * @param runnable the submitted Runnable
      * @param task the task created to execute the runnable
@@ -488,6 +520,8 @@ public class ScheduledThreadPoolExecutor
 
     /**
      * Returns the trigger time of a delayed action.
+     *
+     * 返回延迟动作的触发时间。
      */
     private long triggerTime(long delay, TimeUnit unit) {
         return triggerTime(unit.toNanos((delay < 0) ? 0 : delay));
@@ -554,6 +588,13 @@ public class ScheduledThreadPoolExecutor
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      * @throws IllegalArgumentException   {@inheritDoc}
+     * 可执行定时任务
+     *
+     * @param command 任务
+     * @param initialDelay 初始延迟
+     * @param period 执行周期
+     * @param unit 两个时间的单位
+     * @return 返回的Future
      */
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                   long initialDelay,

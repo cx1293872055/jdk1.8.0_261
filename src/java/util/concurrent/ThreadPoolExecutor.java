@@ -444,6 +444,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * queues such as DelayQueues for which poll() is allowed to
      * return null even if it may later return non-null when delays
      * expire.
+     *
+     * 用于保留任务并移交给工作线程的队列。我们不要求workQueue.poll（）返回nul
+     * l必然意味着workQueue.isEmpty（），因此仅依靠isEmpty来查看队列是否为空
+     * （例如，在决定是否从SHUTDOWN过渡到TIDYING时必须这样做）。 。这可容纳特殊
+     * 用途的队列，例如DelayQueues，允许poll（）返回null，即使它在延迟到期后稍
+     * 后可能返回non-null。
+     *
      */
     private final BlockingQueue<Runnable> workQueue;
 

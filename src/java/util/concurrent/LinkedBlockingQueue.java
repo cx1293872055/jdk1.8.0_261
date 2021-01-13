@@ -49,6 +49,9 @@ import java.util.function.Consumer;
 /**
  * An optionally-bounded {@linkplain BlockingQueue blocking queue} based on
  * linked nodes.
+ *
+ * 一个基于链接节点的可选绑定的{@linkplain BlockingQueue 阻塞队列}。
+ *
  * This queue orders elements FIFO (first-in-first-out).
  * The <em>head</em> of the queue is that element that has been on the
  * queue the longest time.

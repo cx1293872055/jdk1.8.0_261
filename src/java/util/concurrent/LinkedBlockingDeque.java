@@ -95,6 +95,14 @@ public class LinkedBlockingDeque<E>
      * linking a Node that has just been dequeued to itself.  Such a
      * self-link implicitly means to jump to "first" (for next links)
      * or "last" (for prev links).
+     *
+     * 为了实现弱一致性的迭代器，看来我们需要使所有节点都可以从先前的出队节点GC到达
+     * 。这将导致两个问题：-允许恶意的Iterator导致无限制的内存保留-如果某个节点在
+     * 使用期间处于使用期，则导致旧节点到新节点的跨代链接，这代的GC很难处理，从而导
+     * 致重复的大集合。但是，只有未删除的节点可以从出队节点到达，并且可达性不必一定
+     * 是GC理解的那种。我们使用链接刚刚退出队列的Node的技巧。这样的自链接意味着跳
+     * 转到“第一个”（对于下一个链接）或“最后一个”（对于前一个链接）。
+     *
      */
 
     /*
@@ -102,6 +110,10 @@ public class LinkedBlockingDeque<E>
      * here, and that introduces ambiguities. Often we want the
      * BlockingDeque javadoc combined with the AbstractQueue
      * implementation, so a lot of method specs are duplicated here.
+     *
+     * 我们这里有“钻石”多个接口抽象类的继承，这引入了歧义。通常，我们希望将
+     * BlockingDeque javadoc与AbstractQueue实现结合使用，因此此处重复了很多方法规范。
+     *
      */
 
     private static final long serialVersionUID = -387911632671998426L;

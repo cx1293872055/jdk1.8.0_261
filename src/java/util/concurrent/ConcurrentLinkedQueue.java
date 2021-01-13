@@ -118,12 +118,19 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * interior node deletion (to support remove(Object)).  For
      * explanation, read the paper.
      *
+     * 这是对Michael＆Scott算法的修改，适用于垃圾回收环境，并支持内部节点删除
+     * （以支持remove（Object））。要进行解释，请阅读本文。
+     *
      * Note that like most non-blocking algorithms in this package,
      * this implementation relies on the fact that in garbage
      * collected systems, there is no possibility of ABA problems due
      * to recycled nodes, so there is no need to use "counted
      * pointers" or related techniques seen in versions used in
      * non-GC'ed settings.
+     *
+     * 请注意，与该程序包中的大多数非阻塞算法一样，此实现依赖于以下事实：在垃圾回
+     * 收系统中，由于回收的节点而不会出现ABA问题，因此无需使用“计数指针”或相关技
+     * 术在非GC设置中使用的版本中可以看到。
      *
      * The fundamental invariants are:
      * - There is exactly one (last) Node with a null next reference,
@@ -140,6 +147,13 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      *   indefinitely due to creation of an Iterator or simply a
      *   poll() that has lost its time slice.
      *
+     * 基本不变式是：-恰好有一个（最后一个）节点，其下一个引用为空，入队时将进行CASed
+     * 。可以从尾部的O（1）时间到达最后一个节点，但是尾部仅仅是一种优化-它也总是可以从
+     * 头部的O（N）时间到达。 -队列中包含的元素是节点中从头可到达的非空项目。将Node的
+     * 项目引用CAS原子化为null会将其从队列中删除。即使在并行修改导致磁头前进的情况下，
+     * 所有磁头的可达性也必须保持正确。由于创建了Iterator或只是丢失了其时间片的poll（
+     * ），出队节点可能会无限期保持使用状态。
+     *
      * The above might appear to imply that all Nodes are GC-reachable
      * from a predecessor dequeued Node.  That would cause two problems:
      * - allow a rogue Iterator to cause unbounded memory retention
@@ -152,6 +166,12 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * linking a Node that has just been dequeued to itself.  Such a
      * self-link implicitly means to advance to head.
      *
+     * 上面的内容似乎暗示所有节点都可以从先前的出队节点通过GC到达。这将导致两个问题：
+     * -允许恶意的Iterator导致无限制的内存保留-如果某个节点在使用期间处于使用期，则
+     * 导致旧节点到新节点的跨代链接，这代的GC很难处理，从而导致重复的大集合。但是，只
+     * 有未删除的节点可以从出队节点到达，并且可达性不必一定是GC理解的那种。我们使用链
+     * 接刚刚退出队列的Node的技巧。这样的自我联系意味着前进。
+     *
      * Both head and tail are permitted to lag.  In fact, failing to
      * update them every time one could is a significant optimization
      * (fewer CASes). As with LinkedTransferQueue (see the internal
@@ -159,8 +179,14 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * that is, we update head/tail when the current pointer appears
      * to be two or more steps away from the first/last node.
      *
+     * 头和尾都允许滞后。实际上，每次都无法更新它们是一个重大的优化（较少的CASes）。
+     * 与LinkedTransferQueue一样（请参阅该类的内部文档），我们使用的松弛阈值为2。
+     * 也就是说，当当前指针似乎离firstlast节点至少两步或更多时，我们更新头尾。
+     *
      * Since head and tail are updated concurrently and independently,
      * it is possible for tail to lag behind head (why not)?
+     *
+     * 由于头和尾同时并独立地更新，所以尾可能会滞后于头（为什么不这样）？
      *
      * CASing a Node's item reference to null atomically removes the
      * element from the queue.  Iterators skip over Nodes with null
@@ -170,10 +196,18 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * method remove(Object) also lazily unlinks deleted Nodes, but
      * this is merely an optimization.
      *
+     * 将Node的项目引用CAS原子化为null会从队列中删除该元素。迭代器跳过具有空项目的
+     * 节点。该类的先前实现在poll（）和remove（Object）之间存在竞争，其中相同的元
+     * 素似乎可以通过两次并发操作成功删除。方法remove（Object）也会懒惰地取消链接
+     * 已删除的节点，但这仅仅是一种优化。
+     *
      * When constructing a Node (before enqueuing it) we avoid paying
      * for a volatile write to item by using Unsafe.putObject instead
      * of a normal write.  This allows the cost of enqueue to be
      * "one-and-a-half" CASes.
+     *
+     * 在构造Node时（在将其放入队列之前），我们避免使用Unsafe.putObject而不是常
+     * 规写入来为项目进行易失性写入。这使得入队成本成为“一年半”的情况。
      *
      * Both head and tail may or may not point to a Node with a
      * non-null item.  If the queue is empty, all items must of course
@@ -181,6 +215,11 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
      * Node with null item.  Both head and tail are only updated using
      * CAS, so they never regress, although again this is merely an
      * optimization.
+     *
+     * 头部和尾部都可能指向也可能不指向带有非空项目的节点。如果队列为空，则所有项目当然
+     * 必须为空。创建后，头和尾都引用具有空项目的虚拟Node。头部和尾部都仅使用CAS进行更
+     * 新，因此它们永不回归，尽管这只是一种优化。
+     *
      */
 
     private static class Node<E> {

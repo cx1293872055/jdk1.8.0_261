@@ -39,6 +39,10 @@ import java.util.function.UnaryOperator;
  * {@code Vector} can grow or shrink as needed to accommodate
  * adding and removing items after the {@code Vector} has been created.
  *
+ * {@code Vector}类实现可扩展的对象数组。像数组一样，它包含可以使用整数索引访问的组
+ * 件。但是，{@code Vector}的大小可以根据需要增大或缩小，以适应在创建 {@code Vector}
+ * 之后添加和删除项目。
+ *
  * <p>Each vector tries to optimize storage management by maintaining a
  * {@code capacity} and a {@code capacityIncrement}. The
  * {@code capacity} is always at least as large as the vector
@@ -91,6 +95,9 @@ public class Vector<E>
      * The array buffer into which the components of the vector are
      * stored. The capacity of the vector is the length of this array buffer,
      * and is at least large enough to contain all the vector's elements.
+     *
+     * 向量分量存储在其中的数组缓冲区。向量的容量是此数组缓冲区的长度，并且至少大到足以包含所有
+     * 向量的元素。
      *
      * <p>Any array elements following the last element in the Vector are null.
      *
