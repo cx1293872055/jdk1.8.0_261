@@ -316,6 +316,7 @@ public class ScheduledThreadPoolExecutor
             else if (!periodic)
                 ScheduledFutureTask.super.run();
             else if (ScheduledFutureTask.super.runAndReset()) {
+                //定时任务的关键，重新设置runTime
                 setNextRunTime();
                 reExecutePeriodic(outerTask);
             }
@@ -619,6 +620,12 @@ public class ScheduledThreadPoolExecutor
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
      * @throws IllegalArgumentException   {@inheritDoc}
+     *
+     * @param command 任务
+     * @param initialDelay 初始延迟时间
+     * @param delay 执行完第一次任务之后延迟时间
+     * @param unit 时间单位
+     * @return
      */
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
                                                      long initialDelay,
