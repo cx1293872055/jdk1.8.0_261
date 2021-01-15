@@ -32,11 +32,23 @@ package java.util;
  * random access data (such as an array), <tt>AbstractList</tt> should be used
  * in preference to this class.<p>
  *
+ * 此类提供了<tt> List </ tt>的基本实现
+ *  *接口以最小化实现此接口所需的工作
+ *  *由“顺序访问”数据存储（例如链表）支持。对于
+ *  *随机访问数据（例如数组），应使用<tt> AbstractList </ tt>
+ *  *优先于此类。<p>
+ *
  * This class is the opposite of the <tt>AbstractList</tt> class in the sense
  * that it implements the "random access" methods (<tt>get(int index)</tt>,
  * <tt>set(int index, E element)</tt>, <tt>add(int index, E element)</tt> and
  * <tt>remove(int index)</tt>) on top of the list's list iterator, instead of
  * the other way around.<p>
+ *
+ * 此类与<tt> AbstractList </ tt>类相反
+ *  *它实现了“随机访问”方法（<tt> get（int index）</ tt>，
+ *  * <tt> set（int index，E element）</ tt>，<tt> add（int index，E element）</ tt>和
+ *  * <tt> remove（int index）</ tt>）在列表的列表迭代器的顶部，而不是
+ *  *相反。<p>
  *
  * To implement a list the programmer needs only to extend this class and
  * provide implementations for the <tt>listIterator</tt> and <tt>size</tt>
@@ -64,6 +76,11 @@ package java.util;
  * @see AbstractList
  * @see AbstractCollection
  * @since 1.2
+ *
+ * {@link AbstractSequentialList} 是{@link LinkedList} 的直接父类，并且只支持按次序访问
+ *
+ * 其中的{@link #get(int)  #set() #remove()} 全部都以迭代器的方式实现
+ *
  */
 
 public abstract class AbstractSequentialList<E> extends AbstractList<E> {

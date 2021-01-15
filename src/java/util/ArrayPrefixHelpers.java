@@ -40,6 +40,8 @@ import java.util.function.DoubleBinaryOperator;
 /**
  * ForkJoin tasks to perform Arrays.parallelPrefix operations.
  *
+ * ForkJoin任务执行Arrays.parallelPrefix操作。
+ *
  * @author Doug Lea
  * @since 1.8
  */
@@ -54,6 +56,13 @@ class ArrayPrefixHelpers {
      *   Pass 1: Create tree of partial sums for each segment
      *   Pass 2: For each segment, cumulate with offset of left sibling
      *
+     * 并行前缀（又名累积，扫描）任务类
+     *大致基于Guy Blelloch的原创作品
+     *算法（http://www.cs.cmu.edu/~scandal/alg/scan.html）：
+     *继续用二除以阈值段大小，然后：
+     *步骤1：为每个细分创建部分和树
+     *第2步：对于每个细分，以左兄弟姐妹的偏移量累计
+     *
      * This version improves performance within FJ framework mainly by
      * allowing the second pass of ready left-hand sides to proceed
      * even if some right-hand side first passes are still executing.
@@ -63,6 +72,16 @@ class ArrayPrefixHelpers {
      * requiring that users supply an identity basis for accumulations
      * by tracking those segments/subtasks for which the first
      * existing element is used as base.
+     *
+     * 此版本主要通过以下方式提高FJ框架内的性能：
+     *允许准备好的左侧的第二次通过
+     *即使某些右侧的第一遍仍在执行。
+     *它还将最左段的第一遍和第二遍组合在一起，
+     *并跳过最右边分段的第一遍（其结果是
+     *不需要第二遍）。它同样设法避免
+     *要求用户为积累提供身份基础
+     *通过跟踪第一个细分受众群/子任务
+     *现有元素用作基础。
      *
      * Managing this relies on ORing some bits in the pendingCount for
      * phases/states: CUMULATE, SUMMED, and FINISHED. CUMULATE is the
@@ -78,6 +97,21 @@ class ArrayPrefixHelpers {
      * cumulated. For internal nodes, it becomes true when one child
      * is cumulated.  When the second child finishes cumulating, it
      * then moves up tree, completing at the root.
+     *
+     *管理此操作依赖于对
+     *阶段/状态：累计，累加和完成。 CUMULATE是
+     *主相位位。如果为false，则细分仅计算其总和。
+     *为true时，它们累积数组元素。 CUMULATE设置为
+     *在第二遍开始时扎根，然后向下传播。但
+     *还可以为lo == 0的子树更早设置（左侧
+     *树的脊椎）。 SUMMED是一位加入计数。对于叶子
+     *设置为总和。对于内部节点，当
+     *一个孩子加起来。当第二个孩子完成求和时，
+     *然后，我们向上移动树以触发累积阶段。已完成
+     *也是一位加入计数。对于叶子，设置为
+     *累计。对于内部节点，当一个孩子时，它变为真
+     *是累积的。当第二个孩子完成累计后，
+     *然后向上移动树，在树根处完成。
      *
      * To better exploit locality and reduce overhead, the compute
      * method loops starting with the current task, moving if possible

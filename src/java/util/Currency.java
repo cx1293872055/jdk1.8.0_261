@@ -71,6 +71,22 @@ import sun.util.logging.PlatformLogger;
  * loading time. The format of the timestamp must be of ISO 8601 format :
  * {@code 'yyyy-MM-dd'T'HH:mm:ss'}. For example,
  * <p>
+ *     用户可以通过系统取代Java运行时货币数据
+ *  *属性{@code java.util.currency.data}。如果此系统属性是
+ *  *定义，则其值是属性文件的位置，其内容
+ *  *是ISO 3166国家/地区代码和ISO 4217的键/值对
+ *  *分别为货币数据。值部分包括三个ISO 4217值
+ *  *一种货币，即字母代码，数字代码和次要单位。
+ *  *这三个ISO 4217值用逗号分隔。
+ *  *以“＃”开头的行被视为注释行。可选的UTC
+ *  *如果用户需要指定一个时间戳，则可以为每个货币条目指定时间戳记
+ *  *截止日期，指示新数据何时生效。时间戳是
+ *  *附加在货币属性的末尾，并使用逗号作为分隔符。
+ *  *如果存在UTC日期戳并且有效，则JRE将仅使用新货币
+ *  *属性，如果当前UTC日期晚于班级指定的日期
+ *  *加载时间。时间戳记的格式必须为ISO 8601格式：
+ *  * {@code 'yyyy-MM-dd'T'HH：mm：ss'}。例如，
+ *
  * <code>
  * #Sample currency properties<br>
  * JP=JPZ,999,0

@@ -41,6 +41,14 @@ import java.util.stream.StreamSupport;
  * {@code BitSet} through logical AND, logical inclusive OR, and
  * logical exclusive OR operations.
  *
+ * 此类实现根据需要增长的位向量。每
+ *  *该位集合的成分具有{@code boolean}值。的
+ *  * {@code BitSet}的位由非负整数索引。
+ *  *可以检查，设置或清除各个索引位。一
+ *  * {@code BitSet}可用于修改其他内容
+ *  * {@code BitSet}通过逻辑与，逻辑与或，以及
+ *  *逻辑异或运算。
+ *
  * <p>By default, all bits in the set initially have the value
  * {@code false}.
  *
