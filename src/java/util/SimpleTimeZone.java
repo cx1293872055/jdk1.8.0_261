@@ -57,6 +57,11 @@ import sun.util.calendar.Gregorian;
  * #setStartYear setStartYear} method can specify the year when the daylight
  * saving time schedule starts in effect.
  * <p>
+ * <code> SimpleTimeZone <code>是<code> TimeZone <code>的一个具体子类，表示用于格
+ * 里高利历的时区。该类包含GMT的偏移量，称为<em> raw offset <em>，以及夏时制时间表的开始
+ * 和结束规则。由于每个值仅包含一个值，因此无法处理与GMT和夏令时的偏移量的历史变化，除非{@link #setStartYear setStartYear}
+ * 方法可以指定夏令时开始生效的年份。
+ *
  * To construct a <code>SimpleTimeZone</code> with a daylight saving time
  * schedule, the schedule can be described with a set of rules,
  * <em>start-rule</em> and <em>end-rule</em>. A day when daylight saving time

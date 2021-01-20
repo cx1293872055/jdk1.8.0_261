@@ -40,6 +40,11 @@ import java.util.stream.DoubleStream;
  * generate subtasks. Class {@code SplittableRandom} supports methods for
  * producing pseudorandom numbers of type {@code int}, {@code long},
  * and {@code double} with similar usages as for class
+ *
+ * 统一伪随机值的生成器适用于（除其他上下文外）可能会产生子任务的隔离并行计算。
+ * 类{@code SplittableRandom}支持产生类型为{@code int}，{@code long}和
+ * {@code double}的伪随机数的方法，其用法与类相似
+ *
  * {@link java.util.Random} but differs in the following ways:
  *
  * <ul>

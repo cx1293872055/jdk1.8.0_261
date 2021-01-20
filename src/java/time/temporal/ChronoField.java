@@ -84,6 +84,8 @@ import sun.util.locale.provider.LocaleResources;
 
 /**
  * A standard set of fields.
+ * 标准字段集。
+ *
  * <p>
  * This set of fields provide field-based access to manipulate a date, time or date-time.
  * The standard set of fields can be extended by implementing {@link TemporalField}.

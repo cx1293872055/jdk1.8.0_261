@@ -34,6 +34,12 @@ package java.util;
  * for whether the stack is <tt>empty</tt>, and a method to <tt>search</tt>
  * the stack for an item and discover how far it is from the top.
  * <p>
+ *
+ * <code> Stack <code>类表示对象的后进先出（LIFO）堆栈。它使用五个操作扩展了类<tt> Vector <tt>，
+ * 这些操作允许将矢量视为堆栈。提供了通常的<tt> push <tt>和<tt> pop <tt>操作，以及在堆栈顶部的
+ * <tt> peek <tt>的方法，一种用于测试堆栈是否是否通过的方法。是<tt> empty <tt>，并是一种<tt> search <tt>
+ * 物品堆栈并发现其与顶部的距离的方法。
+ *
  * When a stack is first created, it contains no items.
  *
  * <p>A more complete and consistent set of LIFO stack operations is

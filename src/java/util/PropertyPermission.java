@@ -42,6 +42,8 @@ import sun.security.util.SecurityConstants;
 /**
  * This class is for property permissions.
  *
+ * 此类用于属性权限。
+ *
  * <P>
  * The name is the name of the property ("java.home",
  * "os.name", etc). The naming

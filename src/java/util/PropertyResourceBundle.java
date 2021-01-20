@@ -51,6 +51,9 @@ import sun.util.ResourceBundleEnumeration;
  * {@link ResourceBundle ResourceBundle} for more information about resource
  * bundles.
  *
+ * <code> PropertyResourceBundle <code>是<code> ResourceBundle <code>的一个具体子类，
+ * 它使用属性文件中的一组静态字符串来管理语言环境的资源。有关资源包的更多信息，请参见{@link ResourceBundle ResourceBundle}。
+ *
  * <p>
  * Unlike other types of resource bundle, you don't subclass
  * <code>PropertyResourceBundle</code>.  Instead, you supply properties

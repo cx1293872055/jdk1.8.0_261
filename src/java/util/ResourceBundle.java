@@ -72,6 +72,10 @@ import sun.util.locale.LocaleObjectCache;
  * of the user's locale isolating most, if not all, of the locale-specific
  * information in resource bundles.
  *
+ * 资源束包含特定于语言环境的对象。当您的程序需要特定于语言环境的资源时，例如<code> String <code>
+ * ，您的程序可以从适合当前用户语言环境的资源包中加载它。这样，您可以编写很大程度上独立于用户语言环境
+ * 的程序代码，从而将资源包中的大多数（即使不是全部）特定于语言环境的信息隔离开来。
+ *
  * <p>
  * This allows you to write programs that can:
  * <UL>

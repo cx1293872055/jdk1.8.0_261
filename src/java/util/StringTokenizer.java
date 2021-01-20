@@ -34,6 +34,11 @@ import java.lang.*;
  * <code>StringTokenizer</code> methods do not distinguish among
  * identifiers, numbers, and quoted strings, nor do they recognize
  * and skip comments.
+ *
+ * 字符串令牌生成器类允许应用程序将字符串拆分为令牌。标记化方法比<code> StreamTokenizer <code>
+ *     类所使用的方法简单得多。 <code> StringTokenizer <code>方法不区分标识符，数字和带引号的
+ *     字符串，也不识别和跳过注释。
+ *
  * <p>
  * The set of delimiters (the characters that separate tokens) may
  * be specified either at creation time or on a per-token basis.

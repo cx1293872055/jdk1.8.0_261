@@ -45,10 +45,17 @@ import sun.util.spi.XmlPropertiesProvider;
  * or loaded from a stream. Each key and its corresponding value in
  * the property list is a string.
  * <p>
+ *
+ * {@code Properties}类表示一组持久的属性。 {@code 属性}可以保存到流或从流加载。
+ * 属性列表中的每个键及其对应的值都是一个字符串。
+ *
  * A property list can contain another property list as its
  * "defaults"; this second property list is searched if
  * the property key is not found in the original property list.
  * <p>
+ * 一个属性列表可以包含另一个属性列表作为其“默认值”。如果在原始属性列表中找不到属性键
+ * ，则搜索第二个属性列表。
+ *
  * Because {@code Properties} inherits from {@code Hashtable}, the
  * {@code put} and {@code putAll} methods can be applied to a
  * {@code Properties} object.  Their use is strongly discouraged as they

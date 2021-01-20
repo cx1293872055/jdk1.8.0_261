@@ -29,6 +29,10 @@ package java.util;
  * by a delimiter and optionally starting with a supplied prefix
  * and ending with a supplied suffix.
  * <p>
+ *
+ * 实现字符串数组每个元素之间增减间隔符
+ *
+ *
  * Prior to adding something to the {@code StringJoiner}, its
  * {@code sj.toString()} method will, by default, return {@code prefix + suffix}.
  * However, if the {@code setEmptyValue} method is called, the {@code emptyValue}
