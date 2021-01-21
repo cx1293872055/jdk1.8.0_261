@@ -669,12 +669,12 @@ abstract public class HttpURLConnection extends URLConnection {
     public static final int HTTP_MULT_CHOICE = 300;
 
     /**
-     * HTTP Status-Code 301: Moved Permanently.
+     * HTTP Status-Code 301: Moved Permanently.永久移动。
      */
     public static final int HTTP_MOVED_PERM = 301;
 
     /**
-     * HTTP Status-Code 302: Temporary Redirect.
+     * HTTP Status-Code 302: Temporary Redirect.临时重定向。
      */
     public static final int HTTP_MOVED_TEMP = 302;
 
@@ -684,7 +684,7 @@ abstract public class HttpURLConnection extends URLConnection {
     public static final int HTTP_SEE_OTHER = 303;
 
     /**
-     * HTTP Status-Code 304: Not Modified.
+     * HTTP Status-Code 304: Not Modified.未修改。
      */
     public static final int HTTP_NOT_MODIFIED = 304;
 
@@ -696,17 +696,17 @@ abstract public class HttpURLConnection extends URLConnection {
     /* 4XX: client error */
 
     /**
-     * HTTP Status-Code 400: Bad Request.
+     * HTTP Status-Code 400: Bad Request.错误的请求。
      */
     public static final int HTTP_BAD_REQUEST = 400;
 
     /**
-     * HTTP Status-Code 401: Unauthorized.
+     * HTTP Status-Code 401: Unauthorized.未经授权
      */
     public static final int HTTP_UNAUTHORIZED = 401;
 
     /**
-     * HTTP Status-Code 402: Payment Required.
+     * HTTP Status-Code 402: Payment Required.需要付款。
      */
     public static final int HTTP_PAYMENT_REQUIRED = 402;
 
@@ -731,7 +731,7 @@ abstract public class HttpURLConnection extends URLConnection {
     public static final int HTTP_NOT_ACCEPTABLE = 406;
 
     /**
-     * HTTP Status-Code 407: Proxy Authentication Required.
+     * HTTP Status-Code 407: Proxy Authentication Required.需要代理身份验证。
      */
     public static final int HTTP_PROXY_AUTH = 407;
 
@@ -751,27 +751,27 @@ abstract public class HttpURLConnection extends URLConnection {
     public static final int HTTP_GONE = 410;
 
     /**
-     * HTTP Status-Code 411: Length Required.
+     * HTTP Status-Code 411: Length Required.所需长度。
      */
     public static final int HTTP_LENGTH_REQUIRED = 411;
 
     /**
-     * HTTP Status-Code 412: Precondition Failed.
+     * HTTP Status-Code 412: Precondition Failed.前提条件失败。
      */
     public static final int HTTP_PRECON_FAILED = 412;
 
     /**
-     * HTTP Status-Code 413: Request Entity Too Large.
+     * HTTP Status-Code 413: Request Entity Too Large.请求的实体太大。
      */
     public static final int HTTP_ENTITY_TOO_LARGE = 413;
 
     /**
-     * HTTP Status-Code 414: Request-URI Too Large.
+     * HTTP Status-Code 414: Request-URI Too Large.请求URI太大。
      */
     public static final int HTTP_REQ_TOO_LONG = 414;
 
     /**
-     * HTTP Status-Code 415: Unsupported Media Type.
+     * HTTP Status-Code 415: Unsupported Media Type.不支持的媒体类型。
      */
     public static final int HTTP_UNSUPPORTED_TYPE = 415;
 
@@ -785,32 +785,32 @@ abstract public class HttpURLConnection extends URLConnection {
     public static final int HTTP_SERVER_ERROR = 500;
 
     /**
-     * HTTP Status-Code 500: Internal Server Error.
+     * HTTP Status-Code 500: Internal Server Error.内部服务器错误。
      */
     public static final int HTTP_INTERNAL_ERROR = 500;
 
     /**
-     * HTTP Status-Code 501: Not Implemented.
+     * HTTP Status-Code 501: Not Implemented.未实现。
      */
     public static final int HTTP_NOT_IMPLEMENTED = 501;
 
     /**
-     * HTTP Status-Code 502: Bad Gateway.
+     * HTTP Status-Code 502: Bad Gateway.错误的网关
      */
     public static final int HTTP_BAD_GATEWAY = 502;
 
     /**
-     * HTTP Status-Code 503: Service Unavailable.
+     * HTTP Status-Code 503: Service Unavailable.暂停服务。
      */
     public static final int HTTP_UNAVAILABLE = 503;
 
     /**
-     * HTTP Status-Code 504: Gateway Timeout.
+     * HTTP Status-Code 504: Gateway Timeout.网关超时。
      */
     public static final int HTTP_GATEWAY_TIMEOUT = 504;
 
     /**
-     * HTTP Status-Code 505: HTTP Version Not Supported.
+     * HTTP Status-Code 505: HTTP Version Not Supported.不支持HTTP版本。
      */
     public static final int HTTP_VERSION = 505;
 
