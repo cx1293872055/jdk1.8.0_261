@@ -369,6 +369,8 @@ public class ScheduledThreadPoolExecutor
      * Requeues a periodic task unless current run state precludes it.
      * Same idea as delayedExecute except drops task rather than rejecting.
      *
+     * 除非当前运行状态排除了周期性任务，否则它会使其重新排队。除延迟任务而不是拒绝任务外，与delayExecute的想法相同。
+     *
      * @param task the task
      */
     void reExecutePeriodic(RunnableScheduledFuture<?> task) {

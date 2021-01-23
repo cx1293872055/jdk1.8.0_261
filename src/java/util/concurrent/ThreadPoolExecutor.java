@@ -483,12 +483,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * Tracks largest attained pool size. Accessed only under
      * mainLock.
+     *
+     * 跟踪达到的最大池大小。仅在mainLock下访问。
      */
     private int largestPoolSize;
 
     /**
      * Counter for completed tasks. Updated only on termination of
      * worker threads. Accessed only under mainLock.
+     *
+     * 计数器完成的任务。仅在终止工作线程时更新。仅在mainLock下访问
      */
     private long completedTaskCount;
 
@@ -528,6 +532,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Threads use this timeout when there are more than corePoolSize
      * present or if allowCoreThreadTimeOut. Otherwise they wait
      * forever for new work.
+     *
+     * 空闲线程等待工作的超时时间（以纳秒为单位）。当存在更多的corePoolSize或
+     * allowCoreThreadTimeOut时，线程将使用此超时。否则，他们将永远等待新的工作。
      */
     private volatile long keepAliveTime;
 
@@ -535,6 +542,10 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * If false (default), core threads stay alive even when idle.
      * If true, core threads use keepAliveTime to time out waiting
      * for work.
+     *
+     * 如果为false（默认），则即使处于空闲状态，核心线程也保持活动状态。如果为true，
+     * 则核心线程使用keepAliveTime来超时等待工作。
+     *
      */
     private volatile boolean allowCoreThreadTimeOut;
 
@@ -542,12 +553,18 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Core pool size is the minimum number of workers to keep alive
      * (and not allow to time out etc) unless allowCoreThreadTimeOut
      * is set, in which case the minimum is zero.
+     *
+     * 除非设置allowCoreThreadTimeOut，否则核心池大小是保持活动状态（且不允许
+     * 超时等）的最小工作线程数，在这种情况下，最小值为零
+     *
      */
     private volatile int corePoolSize;
 
     /**
      * Maximum pool size. Note that the actual maximum is internally
      * bounded by CAPACITY.
+     *
+     * 最大池大小。请注意，实际最大值在内部受“容量”限制。
      */
     private volatile int maximumPoolSize;
 
@@ -1002,6 +1019,11 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * corePoolSize workers are running or queue is non-empty but
      * there are no workers.
      *
+     * 为垂死的工人进行清理和簿记。仅从辅助线程调用。除非设置了completedAbruptly，
+     * 否则假设已经对workerCount进行了调整以解决退出问题。如果此方法由于用户任务异常
+     * 而退出，或者正在运行的作业少于corePoolSize或队列为非空但没有工作器，则此方法
+     * 将从工作器集中删除线程，并可能终止该池或替换该工作器。
+     *
      * @param w the worker
      * @param completedAbruptly if the worker died due to user exception
      */
@@ -1047,6 +1069,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *    both before and after the timed wait, and if the queue is
      *    non-empty, this worker is not the last thread in the pool.
      *
+     * 根据当前配置设置执行阻塞或定时等待任务，或者如果此工作程序由于以下任何原因而必
+     * 须退出，则返回null：
+     *
+     * 1.存在多个maximumPoolSize工作程序（由于调用setMaximumPoolSize）。
+     * 2.池已停止。
+     * 3.池已关闭，队列为空。
+     * 4.该工作程序超时等待任务，并且在定时等待之前和之后以及如果队列不是-都将终止超
+     * 时工作程序（即{@code allowCoreThreadTimeOut || workerCount> corePoolSize}）
+     * 。为空，此工作程序不是池中的最后一个线程。
+     *
      * @return task, or null if the worker must exit, in which case
      *         workerCount is decremented
      */
@@ -1066,6 +1098,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             int wc = workerCountOf(c);
 
             // Are workers subject to culling?
+            // 工人会被淘汰吗？
             boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
 
             if ((wc > maximumPoolSize || (timed && timedOut))
@@ -1128,6 +1161,31 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * and the thread's UncaughtExceptionHandler have as accurate
      * information as we can provide about any problems encountered by
      * user code.
+     *
+     * 主工作者运行循环。反复从队列中获取任务并执行它们，同时解决许多问题：
+     *
+     * 1.我们可以从初始任务开始，在这种情况下，我们不需要获取第一个任务。否则，只要
+     * 池正在运行，我们就会从getTask获得任务。如果返回null，则工作器由于池状态或
+     * 配置参数更改而退出。其他退出是由于外部代码中的异常引发而导致的，在这种情况下，
+     * completedAbruptly成立，这通常导致processWorkerExit替换此线程。
+     *
+     * 2.在运行任何任务之前，先获取锁，以防止任务执行时其他池中断，然后确保除非池正
+     * 在停止，否则此线程不会设置其中断。
+     *
+     * 3.每个任务运行之前都会调用beforeExecute，这可能会引发异常，在这种情况下，
+     * 我们将导致线程死掉（中断带有completelyAbruptly true的循环）而不处理该任务。
+     *
+     * 4.假设beforeExecute正常完成，我们运行任务，收集其引发的任何异常以发送给afterExecute。
+     * 我们分别处理RuntimeException，Error（规范保证我们可以捕获它们）和任意Throwables。因为
+     * 我们不能在Throwables.run中抛出Throwables，所以我们将它们包装在Errors中（输出到线程的U
+     * ncaughtExceptionHandler）。任何抛出的异常也会保守地导致线程死亡。
+     *
+     * 5. task.run完成后，我们调用afterExecute，这也可能引发异常，这也将导致线程死亡。根据JLS
+     * Sec 14.20，此异常是即使task.run抛出也会生效的异常。
+     *
+     * 异常机制的最终结果是afterExecute和线程的UncaughtExceptionHandler具有与我们所能提供的
+     * 有关用户代码遇到的任何问题的准确信息。
+     *
      *
      * @param w the worker
      */
@@ -1358,6 +1416,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * executor has been shutdown or because its capacity has been reached,
      * the task is handled by the current {@code RejectedExecutionHandler}.
      *
+     * 在将来的某个时间执行给定的任务。该任务可以在新线程或现有池线程中执行。如果由于执行器
+     * 已关闭或已达到其能力而无法提交执行任务，则由当前{@code RejectedExecutionHandler}处理该任务。
+     *
      * @param command the task to execute
      * @throws RejectedExecutionException at discretion of
      *         {@code RejectedExecutionHandler}, if the task
@@ -1386,6 +1447,18 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * 3. If we cannot queue task, then we try to add a new
          * thread.  If it fails, we know we are shut down or saturated
          * and so reject the task.
+         *
+         * 1.如果正在运行的线程少于corePoolSize线程，请尝试使用给定命令作为其第一
+         * 个任务来启动新线程。对addWorker的调用从原子上检查runState和workerCount
+         * ，从而通过返回false来防止在不应该添加线程的情况下发出虚假警报。
+         *
+         * 2.如果任务可以成功排队，那么我们仍然需要仔细检查是否应该添加线程（因为现有
+         * 线程自上次检查后就死掉了）或自从进入此方法以来该池已关闭。因此，我们重新检查状
+         * 态，并在必要时回滚队列（如果已停止），或者在没有线程的情况下启动新线程。
+         *
+         * 3.如果我们无法将任务排队，则尝试添加一个新线程。如果失败，我们知道我们已关闭或
+         * 已饱和，因此拒绝该任务。
+         *
          */
         int c = ctl.get();
         if (workerCountOf(c) < corePoolSize) {
@@ -1621,6 +1694,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * Same as prestartCoreThread except arranges that at least one
      * thread is started even if corePoolSize is 0.
+     *
+     * 与prestartCoreThread相同，除了安排即使corePoolSize为0，也至少启动一个线程。
+     *
      */
     void ensurePrestart() {
         int wc = workerCountOf(ctl.get());
@@ -1671,6 +1747,12 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * continual thread replacement, the keep-alive time must be
      * greater than zero when setting {@code true}. This method
      * should in general be called before the pool is actively used.
+     *
+     * 设置策略，以控制在保持活动时间内没有任务到达时核心线程是否可能超时并终止，
+     * 并在新任务到达时根据需要替换。如果为false，则由于缺少传入任务，核心线程永
+     * 远不会终止。如果为true，则适用于非核心线程的相同的保持活动策略也适用于核心
+     * 线程。为避免连续替换线程，设置{@code true}时，保持活动时间必须大于零。通
+     * 常应在主动使用池之前调用此方法。
      *
      * @param value {@code true} if should time out, else {@code false}
      * @throws IllegalArgumentException if value is {@code true}
